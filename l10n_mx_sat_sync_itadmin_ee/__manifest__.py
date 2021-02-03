@@ -16,7 +16,7 @@
                     'account','l10n_mx_edi','sale_management','purchase','account_accountant'
                     ],
     'external_dependencies': {
-        'python': ['xmltodict','python3-openssl'],
+        'python': ['xmltodict','openssl'],
     },
     'data':         [
                     'security/ir.model.access.csv',
