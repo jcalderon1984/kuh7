@@ -4,7 +4,6 @@
         <record id="l10n_mx_esignature_certificate_list_action" model="ir.actions.act_window">
             <field name="name">l10n.mx.esignature.certificate.action</field>
             <field name="res_model">l10n.mx.esignature.certificate</field>
-<!--            <field name="binding_view_types">form</field>-->
             <field name="view_mode">tree,form</field>
             <field name="help" type="html">
                 <p class="o_view_nocontent_smiling_face">Create the first esignature</p>

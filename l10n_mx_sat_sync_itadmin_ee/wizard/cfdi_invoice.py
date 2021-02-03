@@ -9,46 +9,6 @@ from ..models.special_dict import CaselessDictionary
 from odoo.tools import DEFAULT_SERVER_DATE_FORMAT, DEFAULT_SERVER_DATETIME_FORMAT
 from dateutil.parser import parse
 
-SAT_CLAVE_MAP = {
-                'H87': 'Pieza',
-                'HUR': 'Hora',
-                'KGM': 'Kilogramo',
-                'GRM': 'Gramo',
-                'LTR': 'Litro',
-                'A76': 'Galon',
-                'TNE': 'Tonelada',
-                'XBX': 'Caja',
-                'MTR': 'Metro',
-                'LM': 'Metro lineal',
-                'MTK': 'M2',
-                'MTQ': 'M3',
-                'FOT': 'Pie',
-                'E48': 'Unidad de servicio',
-                'A9': 'Tarifa',
-                'DAY': 'Dia',
-                'XLT': 'Lote',    
-                'SET': 'Conjunto',
-                'ACT': 'Actividad',
-                'Q3': 'Comida',
-                'ROM': 'Habitacion',
-                'XPK': 'Paquete',
-                'XPX': 'Pallet',    
-                'ZZ': 'Mutuamente definido',
-                'RK': 'Medida metrica de rollo',
-                'C62': 'Uno',    
-                'XVN': 'Vehiculo',
-                'XBJ': 'Cubeta',
-                'XRO': 'Rollo',
-                'QK': 'Cuarto de kilogramo',
-                'DZN': 'Docena',
-                'Par': 'PR',
-                'Kit': 'KT',
-                'BFT': 'Tableros de pie',
-                'E51': 'Trabajo',
-                'XNA': 'No disponible',
-                'KWH': 'Kilowatt hora',
-                }
-
 def convert_to_special_dict(d):
     for k, v in d.items():
         if isinstance(v, dict):
@@ -65,7 +25,7 @@ class CfdiInvoiceAttachment(models.TransientModel):
     def _default_journal(self):
         if self._context.get('default_journal_id', False):
             return self.env['account.journal'].browse(self._context.get('default_journal_id'))
-        company_id = self._context.get('company_id', self.env.user.company_id.id)
+        company_id = self._context.get('company_id', self.env.company.id)
         domain = [
             ('type', 'in', ['sale']),
             ('company_id', '=', company_id),
@@ -76,7 +36,7 @@ class CfdiInvoiceAttachment(models.TransientModel):
     def _default_supplier_journal(self):
         if self._context.get('default_journal_id', False):
             return self.env['account.journal'].browse(self._context.get('default_journal_id'))
-        company_id = self._context.get('company_id', self.env.user.company_id.id)
+        company_id = self._context.get('company_id', self.env.company.id)
         domain = [
             ('type', 'in', ['purchase']),
             ('company_id', '=', company_id),
@@ -105,7 +65,7 @@ class CfdiInvoiceAttachment(models.TransientModel):
     
     company_id = fields.Many2one('res.company', string='Compañia', 
         required=True, readonly=True, 
-        default=lambda self: self.env.user.company_id)
+        default=lambda self: self.env.company)
     
     
     def import_xml_file(self):
@@ -291,8 +251,8 @@ class CfdiInvoiceAttachment(models.TransientModel):
             #'fecha_certificacion': timbrado_data.get('@FechaTimbrado') and parse(timbrado_data.get('@FechaTimbrado')).strftime(DEFAULT_SERVER_DATETIME_FORMAT) or False, #data.get('Comprobante',{}).get('@FechaTimbrado')
             #'selo_digital_cdfi': timbrado_data.get('@SelloCFD'),
             #'selo_sat': timbrado_data.get('@SelloSAT'),
-            'currency_id' : journal.currency_id.id or journal.company_id.currency_id.id or self.env.user.company_id.currency_id.id,
-            'company_id' : self.env.user.company_id.id,
+            'currency_id' : journal.currency_id.id or journal.company_id.currency_id.id or self.env.company.currency_id.id,
+            'company_id' : self.env.company.id,
             'journal_id' : journal.id,
             }
 
@@ -329,7 +289,18 @@ class CfdiInvoiceAttachment(models.TransientModel):
             if taxes:
                 if type(taxes)!=list:
                     taxes = [taxes]
-                tax_ids  = self.get_tax_from_codes(taxes,'sale')
+            else:
+                taxes = []
+            no_imp_tras = len(taxes)
+            if line.get('Impuestos',{}).get('Retenciones',{}):
+                other_taxes = line.get('Impuestos',{}).get('Retenciones',{}).get('Retencion')
+                if type(other_taxes)!=list:
+                    other_taxes = [other_taxes]
+                taxes.extend(other_taxes)
+            if taxes:
+                if type(taxes)!=list:
+                    taxes = [taxes]
+                tax_ids  = self.get_tax_from_codes(taxes,'sale',no_imp_tras)
 #                 for tax in taxes:
 #                     amount_tasa = float(tax.get('@TasaOCuota'))*100
 #                     tasa = str(amount_tasa)
@@ -350,8 +321,6 @@ class CfdiInvoiceAttachment(models.TransientModel):
                 product_exist = product_obj.search([('name','=',product_name)],limit=1)
                 
             if not product_exist:
-                #um_descripcion = SAT_CLAVE_MAP.get(clave_unidad,'No disponible')
-                #,'unidad_medida' : um_descripcion, 'clave_producto' : clave_producto
                 product_vals = {'default_code':default_code, 'name':product_name, 'standard_price' : unit_price,}
 
                 if product_type_default:
@@ -481,8 +450,8 @@ class CfdiInvoiceAttachment(models.TransientModel):
             #'fecha_certificacion': timbrado_data.get('@FechaTimbrado') and parse(timbrado_data.get('@FechaTimbrado')).strftime(DEFAULT_SERVER_DATETIME_FORMAT) or False,
             #'selo_digital_cdfi': timbrado_data.get('@SelloCFD'),
             #'selo_sat': timbrado_data.get('@SelloSAT'),
-            'currency_id' : journal.currency_id.id or journal.company_id.currency_id.id or self.env.user.company_id.currency_id.id,
-            'company_id' : self.env.user.company_id.id,
+            'currency_id' : journal.currency_id.id or journal.company_id.currency_id.id or self.env.company.currency_id.id,
+            'company_id' : self.env.company.id,
             'journal_id' : journal.id,
             }
 
@@ -520,7 +489,19 @@ class CfdiInvoiceAttachment(models.TransientModel):
             if taxes:
                 if type(taxes)!=list:
                     taxes = [taxes]
-                tax_ids  = self.get_tax_from_codes(taxes,'purchase')
+            else:
+                taxes = []
+            no_imp_tras = len(taxes)
+            if line.get('Impuestos',{}).get('Retenciones',{}):
+                other_taxes = line.get('Impuestos',{}).get('Retenciones',{}).get('Retencion')
+                if type(other_taxes)!=list:
+                    other_taxes = [other_taxes]
+                    
+                taxes.extend(other_taxes)
+            if taxes:
+                if type(taxes)!=list:
+                    taxes = [taxes]
+                tax_ids  = self.get_tax_from_codes(taxes,'purchase',no_imp_tras)
 #                 tax_ids = []
 #                 if taxes:
 #                     for tax in taxes:
@@ -543,8 +524,6 @@ class CfdiInvoiceAttachment(models.TransientModel):
                 product_exist = product_obj.search([('name','=',product_name)],limit=1)
                 
             if not product_exist:
-                #um_descripcion = SAT_CLAVE_MAP.get(clave_unidad,'No disponible')
-                #,'unidad_medida' : um_descripcion, 'clave_producto' : clave_producto,
                 product_vals = {'default_code':default_code, 'name':product_name, 'standard_price' : unit_price}
 
                 if product_type_default:
@@ -673,8 +652,8 @@ class CfdiInvoiceAttachment(models.TransientModel):
             #'fecha_certificacion': timbrado_data.get('@FechaTimbrado') and parse(timbrado_data.get('@FechaTimbrado')).strftime(DEFAULT_SERVER_DATETIME_FORMAT) or False,
             #'selo_digital_cdfi': timbrado_data.get('@SelloCFD'),
             #'selo_sat': timbrado_data.get('@SelloSAT'),
-            'currency_id' : journal.currency_id.id or journal.company_id.currency_id.id or self.env.user.company_id.currency_id.id,
-            'company_id' : self.env.user.company_id.id,
+            'currency_id' : journal.currency_id.id or journal.company_id.currency_id.id or self.env.company.currency_id.id,
+            'company_id' : self.env.company.id,
             'journal_id' : journal.id,
             }
         
@@ -713,7 +692,18 @@ class CfdiInvoiceAttachment(models.TransientModel):
             if taxes:
                 if type(taxes)!=list:
                     taxes = [taxes]
-                tax_ids  = self.get_tax_from_codes(taxes,'sale')
+            else:
+                taxes = []
+            no_imp_tras = len(taxes)
+            if line.get('Impuestos',{}).get('Retenciones',{}):
+                other_taxes = line.get('Impuestos',{}).get('Retenciones',{}).get('Retencion')
+                if type(other_taxes)!=list:
+                    other_taxes = [other_taxes]
+                taxes.extend(other_taxes)
+            if taxes:
+                if type(taxes)!=list:
+                    taxes = [taxes]
+                tax_ids  = self.get_tax_from_codes(taxes,'sale',no_imp_tras)
 #                 tax_ids = []
 #                 if taxes:
 #                     for tax in taxes:
@@ -736,8 +726,6 @@ class CfdiInvoiceAttachment(models.TransientModel):
                 product_exist = product_obj.search([('name','=',product_name)],limit=1)
                 
             if not product_exist:
-                #um_descripcion = SAT_CLAVE_MAP.get(clave_unidad,'No disponible')
-                #,'unidad_medida' : um_descripcion, 'clave_producto' : clave_producto,
                 product_vals = {'default_code':default_code, 'name':product_name, 'standard_price' : unit_price}
 
                 if product_type_default:
@@ -870,8 +858,8 @@ class CfdiInvoiceAttachment(models.TransientModel):
             #'fecha_certificacion': timbrado_data.get('@FechaTimbrado') and parse(timbrado_data.get('@FechaTimbrado')).strftime(DEFAULT_SERVER_DATETIME_FORMAT) or False,
             #'selo_digital_cdfi': timbrado_data.get('@SelloCFD'),
             #'selo_sat': timbrado_data.get('@SelloSAT'),
-            'currency_id' : journal.currency_id.id or journal.company_id.currency_id.id or self.env.user.company_id.currency_id.id,
-            'company_id' : self.env.user.company_id.id,
+            'currency_id' : journal.currency_id.id or journal.company_id.currency_id.id or self.env.company.currency_id.id,
+            'company_id' : self.env.company.id,
             'journal_id' : journal.id,
             })
         
@@ -903,9 +891,20 @@ class CfdiInvoiceAttachment(models.TransientModel):
             #clave_unidad = line.get('@ClaveUnidad')
             #clave_producto = line.get('@ClaveProdServ')
             taxes = line.get('Impuestos',{}).get('Traslados',{}).get('Traslado')
+            if taxes:
+                if type(taxes)!=list:
+                    taxes = [taxes]
+            else:
+                taxes = []
+            no_imp_tras = len(taxes)
+            if line.get('Impuestos',{}).get('Retenciones',{}):
+                other_taxes = line.get('Impuestos',{}).get('Retenciones',{}).get('Retencion')
+                if type(other_taxes)!=list:
+                    other_taxes = [other_taxes]
+                taxes.extend(other_taxes)
             if type(taxes)!=list:
                 taxes = [taxes]
-            tax_ids  = self.get_tax_from_codes(taxes or [],'purchase')
+            tax_ids  = self.get_tax_from_codes(taxes or [],'purchase',no_imp_tras)
 #             tax_ids = []
 #             if taxes:
 #                 for tax in taxes:
@@ -920,8 +919,6 @@ class CfdiInvoiceAttachment(models.TransientModel):
             else:
                 product_exist = product_obj.search([('name','=',product_name)],limit=1)
             if not product_exist:
-                #um_descripcion = SAT_CLAVE_MAP.get(clave_unidad,'No disponible')
-                #,'unidad_medida' : um_descripcion, 'clave_producto' : clave_producto,
                 product_vals = {'default_code':default_code, 'name':product_name, 'standard_price' : unit_price}
 
                 if product_type_default:
@@ -981,8 +978,6 @@ class CfdiInvoiceAttachment(models.TransientModel):
         product_types = dict(product_obj._fields.get('type')._description_selection(product_obj.env))
         product_type_default = self.env['ir.config_parameter'].sudo().get_param('l10n_mx_sat_sync_itadmin.product_type_default')
         if not product_exist:
-                #um_descripcion = SAT_CLAVE_MAP.get(clave_unidad,'No disponible')
-                #,'unidad_medida' : um_descripcion, 'clave_producto' : clave_producto,
                 product_vals = {'default_code':default_code, 'name':product_name, 'standard_price' : unit_price}
 
                 if product_type_default:
@@ -995,19 +990,26 @@ class CfdiInvoiceAttachment(models.TransientModel):
         return product_exist
     
     @api.model
-    def get_tax_from_codes(self, taxes,tax_type):
+    def get_tax_from_codes(self, taxes,tax_type,no_imp_tras):
         tax_codes = {'001' : 'ISR', '002' : 'IVA', '003' : 'IEPS'}
         tax_obj = self.env['account.tax']
         tax_ids = []
-        for tax in taxes:
-            amount_tasa = float(tax.get('@TasaOCuota'))*100
-            tasa = str(amount_tasa)
-            tax_exist = tax_obj.search([('type_tax_use','=',tax_type),('l10n_mx_cfdi_tax_type','=',tax.get('@TipoFactor')),('amount', '=', tasa)],limit=1)
-            if not tax_exist:
-                raise Warning("La factura contiene impuestos que no han sido configurados. Por favor configure los impuestos primero")
-            tax_ids.append(tax_exist.id)
+        if taxes:
+            k = 0
+            for tax in taxes:
+                if tax.get('@TasaOCuota'):
+                    if k < no_imp_tras:
+                        amount_tasa = float(tax.get('@TasaOCuota'))*100
+                    else:
+                        amount_tasa = float(tax.get('@TasaOCuota'))*-100
+                    tasa = str(amount_tasa)
+                else:
+                    tasa = str(0)
+                tax_exist = tax_obj.search([('type_tax_use','=',tax_type),('l10n_mx_tax_type','=',tax.get('@TipoFactor')),('amount', '=', tasa)],limit=1)
+                if not tax_exist:
+                    raise Warning("La factura contiene impuestos que no han sido configurados. Por favor configure los impuestos primero")
+                tax_ids.append(tax_exist.id)
         return tax_ids
-    
     
     def import_sale_order(self, file_content):
         file_content = base64.b64decode(file_content)
@@ -1042,7 +1044,7 @@ class CfdiInvoiceAttachment(models.TransientModel):
             #'forma_pago':data.get('Comprobante',{}).get('@FormaPago',{}), 
             #'methodo_pago':data.get('Comprobante',{}).get('@MetodoPago',{}),
             #'uso_cfdi':receptor_data.get('@UsoCFDI'),
-            'company_id' : self.env.user.company_id.id,
+            'company_id' : self.env.company.id,
             }
         sale_order = sale_obj.new(order_vals)
         sale_order.onchange_partner_id()
@@ -1077,7 +1079,18 @@ class CfdiInvoiceAttachment(models.TransientModel):
             if taxes:
                 if type(taxes)!=list:
                     taxes = [taxes]
-                tax_ids  = self.get_tax_from_codes(taxes,'sale')
+            else:
+                taxes = []
+            no_imp_tras = len(taxes)
+            if line.get('Impuestos',{}).get('Retenciones',{}):
+                other_taxes = line.get('Impuestos',{}).get('Retenciones',{}).get('Retencion')
+                if type(other_taxes)!=list:
+                    other_taxes = [other_taxes]
+                taxes.extend(other_taxes)
+            if taxes:
+                if type(taxes)!=list:
+                    taxes = [taxes]
+                tax_ids  = self.get_tax_from_codes(taxes,'sale', no_imp_tras)
 #                 tax_ids = []
 #                 if taxes:
 #                     for tax in taxes:
@@ -1188,7 +1201,7 @@ class CfdiInvoiceAttachment(models.TransientModel):
             #'fecha_certificacion': timbrado_data.get('@FechaTimbrado') and parse(timbrado_data.get('@FechaTimbrado')).strftime(DEFAULT_SERVER_DATETIME_FORMAT) or False,
             #'selo_digital_cdfi': timbrado_data.get('@SelloCFD'),
             #'selo_sat': timbrado_data.get('@SelloSAT'),
-            'company_id' : self.env.user.company_id.id,
+            'company_id' : self.env.company.id,
             }
         purchase_order = purchase_obj.new(order_vals)
         purchase_order.onchange_partner_id()
@@ -1209,7 +1222,19 @@ class CfdiInvoiceAttachment(models.TransientModel):
             if taxes:
                 if type(taxes)!=list:
                     taxes = [taxes]
-                tax_ids  = self.get_tax_from_codes(taxes,'purchase')
+            else:
+                taxes = []
+            no_imp_tras = len(taxes)
+            if line.get('Impuestos',{}).get('Retenciones',{}):
+                other_taxes = line.get('Impuestos',{}).get('Retenciones',{}).get('Retencion')
+                if type(other_taxes)!=list:
+                    other_taxes = [other_taxes]
+                    
+                taxes.extend(other_taxes)
+            if taxes:
+                if type(taxes)!=list:
+                    taxes = [taxes]
+                tax_ids  = self.get_tax_from_codes(taxes,'purchase',no_imp_tras)
 #                 tax_ids = []
 #                 if taxes:
 #                     for tax in taxes:

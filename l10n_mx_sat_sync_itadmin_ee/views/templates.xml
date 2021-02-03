@@ -5,7 +5,7 @@
         	 <script src="/l10n_mx_sat_sync_itadmin_ee/static/src/js/attach_xmls.js" type="text/javascript"/>
         	<link href="/l10n_mx_sat_sync_itadmin_ee/static/src/css/style.css" rel="stylesheet"/>
             <script type="text/javascript" src="/l10n_mx_sat_sync_itadmin_ee/static/src/js/list_controller.js"></script>
-            
+            <script type="text/javascript" src="/l10n_mx_sat_sync_itadmin_ee/static/src/js/data_manager.js"></script>
         </xpath>
     </template>	
 </odoo>
