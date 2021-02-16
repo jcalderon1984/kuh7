@@ -15,7 +15,6 @@
     'depends':      [
                     'account','l10n_mx_edi','sale_management','purchase','account_accountant'
                     ],
-    "external_dependencies": {"python": [], "xmltodict": []},
     'data':         [
                     'security/ir.model.access.csv',
                     'security/l10n_mx_edi_esignature.xml',
