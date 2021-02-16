@@ -19,15 +19,15 @@ class AccountInvoice(models.Model):
             attachment_id = inv.l10n_mx_edi_retrieve_last_attachment()
             if not attachment_id:
 #                 inv.l10n_mx_edi_cfdi_uuid_cusom=False
-                attachments = inv.attachment_ids
+                attachments = self.attachment_ids
                 results = []
                 results += [rec for rec in attachments if rec.name.endswith('.xml')]
                 if results:
-                    domain = [('res_id', '=', inv.id),
-                              ('res_model', '=', inv._name),
+                    domain = [('res_id', '=', self.id),
+                              ('res_model', '=', self._name),
                               ('name', '=', results[0].name)]
                     
-                    attachment = inv.env['ir.attachment'].search(domain)
+                    attachment = self.env['ir.attachment'].search(domain)
                     inv.write({'l10n_mx_edi_cfdi_name': attachment.name})
                 
             else:
@@ -39,4 +39,5 @@ class AccountInvoice(models.Model):
                 if tfd_node is not None:
                     inv.l10n_mx_edi_cfdi_uuid_cusom = tfd_node.get('UUID')
     
-    
+
+
