@@ -20,7 +20,7 @@ class ActionSatSync(Action):
                 ctx = value.get('context','{}')
                 ctx = eval(ctx)
                 if 'company_id' not in ctx:
-                    ctx.update({'company_id':request.env.company.id})
+                    ctx.update({'company_id':user.company_id.id})
                     value['context']=str(ctx)
             except Exception:
                 pass
