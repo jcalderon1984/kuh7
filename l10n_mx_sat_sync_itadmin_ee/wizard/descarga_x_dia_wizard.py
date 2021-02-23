@@ -19,5 +19,5 @@ class DescargaXDiaWizard(models.TransientModel):
         end_date = self.end_date.strftime(DEFAULT_SERVER_DATE_FORMAT)
         end_date += ' 23:59:59'
         end_date = datetime.strptime(end_date,DEFAULT_SERVER_DATETIME_FORMAT)
-        self.env.user.company_id.download_cfdi_invoices(start_date, end_date)
+        self.env.company.download_cfdi_invoices(start_date, end_date)
         return True

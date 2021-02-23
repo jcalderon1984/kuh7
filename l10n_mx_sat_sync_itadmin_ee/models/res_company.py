@@ -40,7 +40,7 @@ class ResCompany(models.Model):
     
     @api.model
     def import_current_company_invoice(self):
-        self.env.user.company_id.with_user(self.env.user).download_cfdi_invoices()
+        self.env.company.with_user(self.env.user).download_cfdi_invoices()
         return True
     
     def download_cfdi_invoices(self, start_date=False, end_Date=False):
@@ -154,12 +154,12 @@ class ResCompany(models.Model):
 
                 monto_total = 0
                 if cfdi_type=='SP':
-                   complemento = tree.find('cfdi:Complemento', NSMAP)
-                   pagos = complemento.find('pago10:Pagos', NSMAP)
-                   pago = pagos.find('pago10:Pago', NSMAP)
-                   monto_total = pago.attrib['Monto']
+                    complemento = tree.find('cfdi:Complemento', NSMAP)
+                    pagos = complemento.find('pago10:Pagos', NSMAP)
+                    pago = pagos.find('pago10:Pago', NSMAP)
+                    monto_total = pago.attrib['Monto']
                 else:
-                   monto_total = values.get('total',0.0)
+                    monto_total = values.get('total',0.0)
 
                 filename = uuid + '.xml' #values.get('receptor','')[:10]+'_'+values.get('rfc_receptor')
                 vals = dict(
@@ -246,12 +246,12 @@ class ResCompany(models.Model):
 
                 monto_total = 0
                 if cfdi_type=='P':
-                   complemento = tree.find('cfdi:Complemento', NSMAP)
-                   pagos = complemento.find('pago10:Pagos', NSMAP)
-                   pago = pagos.find('pago10:Pago', NSMAP)
-                   monto_total = pago.attrib['Monto']
+                    complemento = tree.find('cfdi:Complemento', NSMAP)
+                    pagos = complemento.find('pago10:Pagos', NSMAP)
+                    pago = pagos.find('pago10:Pago', NSMAP)
+                    monto_total = pago.attrib['Monto']
                 else:
-                   monto_total = values.get('total',0.0)
+                    monto_total = values.get('total',0.0)
 
                 filename = uuid + '.xml' # values.get('emisor')[:10]+'_'+values.get('rfc_emisor')
                 vals = dict(
