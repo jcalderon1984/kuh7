@@ -73,24 +73,10 @@
             </p>
         </field>
     </record>
-   
-    <record id="action_attachment_cfdi_supplier_invoices_tree_view" model="ir.actions.act_window.view">
-        <field eval="1" name="sequence"/>
-        <field name="view_mode">tree</field>
-        <field name="view_id" ref="view_attachment_tree_cfdi_sat_invoices_files"/>
-        <field name="act_window_id" ref="action_attachment_cfdi_supplier_invoices"/>
-    </record>
-
-    <record id="action_attachment_cfdi_supplier_invoices_form_view" model="ir.actions.act_window.view">
-        <field eval="2" name="sequence"/>
-        <field name="view_mode">form</field>
-        <field name="view_id" ref="base.view_attachment_form"/>
-        <field name="act_window_id" ref="action_attachment_cfdi_supplier_invoices"/>
-    </record>
-      
+    
     <menuitem id="main_manu_attachment_cfdi_invoices" 
-    		  parent="account_accountant.menu_accounting" 	
-    		  sequence="5"
+    		  parent="account.menu_finance" 	
+    		  sequence="3"
     		  name="ADD"
     		  />
     		  
@@ -99,28 +85,27 @@
     		  parent="main_manu_attachment_cfdi_invoices"
     		  name="Documentos digitales" 	
     		  sequence="10"/>
-      
-    <act_window 
-    	name="Genera facturas"
+    
+    <act_window name="Genera facturas"
 	    res_model="cfdi.invoice.attachment"
 	    binding_model="ir.attachment"
 	    view_mode="form"
-		binding_views="form"    
-	    target="new"
+	    binding_views="list,form"
+	    target="new" 
 	    id="action_generate_supplier_invoice_from_attachment"
 	    context="{'create_so_po':False}"
 	    />
-			
-     <act_window name="Genera pedidos"
-			    res_model="cfdi.invoice.attachment"
-			    binding_model="ir.attachment"
-			    view_mode="form"
-			    target="new"
-				binding_views="form"	
-			    id="action_generate_so_po_from_attachment"
-			    context="{'create_so_po':True}"
-			    />
-		   
+
+	 	<act_window name="Genera pedidos"
+	    res_model="cfdi.invoice.attachment"
+	    binding_model="ir.attachment"
+	    view_mode="form"
+	    target="new"
+		binding_views="list,form"	 	
+	    id="action_generate_so_po_from_attachment"
+	    context="{'create_so_po':True}"
+	    />
+  
     <record id="action_unlink_xml_attahchment_from_invoice" model="ir.actions.server">
     	<field name="name">Desconcilar</field>
         <field name="type">ir.actions.server</field>
@@ -128,26 +113,24 @@
         <field name="model_id" ref="base.model_ir_attachment"/>
         <field name="binding_model_id" ref="base.model_ir_attachment"/>
         <field name="code">
-				records.action_renmove_invoice_link()
+records.action_renmove_invoice_link()
         </field>
     </record>
     
-   <act_window name="Conciliar"
-	    res_model="reconcile.vendor.cfdi.xml.bill"
-	    binding_model="ir.attachment" 
+    <!-- <act_window name="Descarga x dia"
+	    res_model="descarga.x.dia.wizard"
+	    src_model="ir.attachment"
+	    view_type="form"
 	    view_mode="form"
 	    target="new"
-		binding_views="form"	
+	    key2="client_action_multi"
+	    id="action_import_xml_attachment_btw_two_dates"
+	    /> -->
+	<act_window name="Conciliar"
+	    res_model="reconcile.vendor.cfdi.xml.bill"
+	    binding_model="ir.attachment"
+	    view_mode="form"
+	    target="new"
 	    id="action_reconcile_vendor_cfdi_xml_bill_popup"
 	    />
-	  
-	<record id="action_compute_cfdi_uuid" model="ir.actions.server">
-    	<field name="name">UUID De XML</field>
-        <field name="type">ir.actions.server</field>
-        <field name="state">code</field>
-        <field name="model_id" ref="account.model_account_move"/>
-        <field name="binding_model_id" ref="account.model_account_move"/>
-        <field name="code">records._compute_cfdi_uuid()</field>
-    </record>
-	  
 </odoo>

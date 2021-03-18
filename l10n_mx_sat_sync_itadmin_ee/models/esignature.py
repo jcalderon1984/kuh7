@@ -42,7 +42,7 @@ def str_to_datetime(dt_str, tz=timezone('America/Mexico_City')):
     return tz.localize(fields.Datetime.from_string(dt_str))
 
 
-class ESignatureCertificate(models.Model):
+class Certificate(models.Model):
     _name = 'l10n.mx.esignature.certificate'
     _description = 'MX E-signature'
 
@@ -172,12 +172,12 @@ class ESignatureCertificate(models.Model):
 
     @api.model
     def create(self, data):
-        res = super(ESignatureCertificate, self).create(data)
+        res = super(Certificate, self).create(data)
         self.clear_caches()
         return res
 
     def write(self, data):
-        res = super(ESignatureCertificate, self).write(data)
+        res = super(Certificate, self).write(data)
         self.clear_caches()
         return res
 
@@ -188,6 +188,6 @@ class ESignatureCertificate(models.Model):
                 'You cannot remove a certificate that has already been used '
                 'to sign an invoice. Expired Certificates will not be used '
                 'as Odoo uses the latest valid certificate.'))
-        res = super(ESignatureCertificate, self).unlink()
+        res = super(Certificate, self).unlink()
         self.clear_caches()
         return res

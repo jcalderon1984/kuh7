@@ -90,7 +90,7 @@ class AttachXmlsWizard(models.TransientModel):
         attachments = {}
         attachment_uuids = {}
         attach_obj = self.env['ir.attachment']
-        company = self.env.user.company_id
+        company = self.env.company
         company_vat = company.vat
         company_id = company.id
         NSMAP = {

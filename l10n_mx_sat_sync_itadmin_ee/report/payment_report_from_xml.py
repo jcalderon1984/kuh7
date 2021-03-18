@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
 
 import time
-from odoo import api, models
+from odoo import api, models, tools
 import base64
+from lxml import etree
 from lxml.objectify import fromstring
 
-CFDI_XSLT_CADENA_TFD = 'l10n_mx_edi/data/xslt/3.3/cadenaoriginal_TFD_1_1.xslt'
+CFDI_XSLT_CADENA_TFD = 'l10n_mx_sat_sync_itadmin/data/xslt/cadenaoriginal_TFD_1_1.xslt'
 
 class ReportPaymentFromXMLFile(models.AbstractModel):
-    _name ="report.l10n_mx_sat_sync_itadmin_ee.attachment_payment_report"
+    _name ="report.l10n_mx_sat_sync_itadmin.attachment_payment_report"
     _description = 'ReportPaymentFromXMLFile'
 
     @api.model
@@ -86,7 +87,12 @@ class ReportPaymentFromXMLFile(models.AbstractModel):
         namespace = {'tfd': 'http://www.sat.gob.mx/TimbreFiscalDigital'}
         node = cfdi.Complemento.xpath(attribute, namespaces=namespace)
         return node[0] if node else None
-    
+
+    @api.model
+    def l10n_mx_edi_generate_cadena(self, xslt_path, cfdi_as_tree):
+        xslt_root = etree.parse(tools.file_open(xslt_path))
+        return str(etree.XSLT(xslt_root)(cfdi_as_tree))
+
     @api.model
     def _get_l10n_mx_edi_cadena(self, cfdi):
         
@@ -97,7 +103,7 @@ class ReportPaymentFromXMLFile(models.AbstractModel):
         cfdi = self.l10n_mx_edi_get_xml_etree(cfdi)
         cfdi = self.l10n_mx_edi_get_tfd_etree(cfdi)
         #return the cadena
-        return self.env['account.move'].l10n_mx_edi_generate_cadena(xslt_path, cfdi)
+        return self.l10n_mx_edi_generate_cadena(xslt_path, cfdi)
     
     @api.model
     def _get_report_values(self, docids, data=None):

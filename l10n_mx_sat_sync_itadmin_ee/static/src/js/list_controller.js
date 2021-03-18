@@ -1,4 +1,4 @@
-odoo.define('l10n_mx_sat_sync_itadmin_ee.ListController', function (require) {
+odoo.define('l10n_mx_sat_sync_itadmin.ListController', function (require) {
 "use strict";
 
 var ListController = require('web.ListController');
@@ -10,6 +10,7 @@ ListController.include({
 			var context = this.model.get(this.handle, {raw: true}).getContext();
 			if (context.is_fiel_attachment!==undefined && context.is_fiel_attachment==true){
 				if (this.$buttons.find(".o_list_button_discard").length){
+					
 					var $import_button = $("<button type='button' class='btn btn-default btn-sm o_list_button_importar_xml_fiel_invoice_from_sat' accesskey='xml'>Importar XML</button>");
 					this.$buttons.find(".o_list_button_discard").after($import_button);
 					this.$buttons.on('click', '.o_list_button_importar_xml_fiel_invoice_from_sat', this._onClickImportarXML.bind(this));
@@ -24,6 +25,13 @@ ListController.include({
 					var $import_button = $("<button type='button' class='btn btn-default btn-sm o_list_button_import_fiel_invoice_from_sat' accesskey='if'>Sincronizar SAT</button>");
 					this.$buttons.find(".o_list_button_discard").after($import_button);
 					this.$buttons.on('click', '.o_list_button_import_fiel_invoice_from_sat', this._onImportFIELSatInvoice.bind(this));
+					
+					var $import_button = $("<button type='button' class='btn btn-default btn-sm o_list_button_sincronizar_documentos_fiel_invoice_from_sat' accesskey='xml'>Sincronizar documentos</button>");
+					this.$buttons.find(".o_list_button_importar_xml_fiel_invoice_from_sat").after($import_button);
+					this.$buttons.on('click', '.o_list_button_sincronizar_documentos_fiel_invoice_from_sat', this._onClickSincronizarDocumentos.bind(this));
+				
+					
+					
 				}
 			}
 		}
@@ -84,7 +92,18 @@ ListController.include({
             target: 'new',
             res_model: 'descarga.x.dia.wizard'
         });
-        
+    },
+    
+    _onClickSincronizarDocumentos: function (event) {
+       event.stopPropagation();
+       var self = this;
+       self._rpc({
+        	 model: 'ir.attachment',
+        	 method: 'update_status_from_ir_attachment_document',
+             args: [],
+        }).then(function () {
+            return;
+        });;
     },
 });
 
