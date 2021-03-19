@@ -15,12 +15,18 @@ class IrAttachment(models.Model):
     @api.depends('invoice_ids')
     def _compute_account_invoice_count(self):
         for attach in self:
-            attach.invoice_count = len(attach.invoice_ids)
-    
+            try:
+                attach.invoice_count = len(attach.invoice_ids)
+            except Exception:
+                pass
+            
     @api.depends('payment_ids')
     def _compute_account_payment_count(self):
         for attach in self:
-            attach.payment_count = len(attach.payment_ids)
+            try:
+                attach.payment_count = len(attach.payment_ids)
+            except Exception:
+                pass
                 
     cfdi_uuid = fields.Char("CFDI UUID", copy=False)
     #cfdi_type = fields.Selection([('E','Emisor'),('R','Receptor')],"CFDI Invoice Type", copy=False)
@@ -122,6 +128,7 @@ class IrAttachment(models.Model):
         action = self.env.ref('account.action_move_out_invoice_type').read()[0]
         if len(invoices) > 1:
             action['domain'] = [('id', 'in', invoices.ids)]
+            action['view_mode'] = 'tree'
         elif len(invoices) == 1:
             action['views'] = [(self.env.ref('account.view_move_form').id, 'form')]
             action['res_id'] = invoices.ids[0]
@@ -132,63 +139,12 @@ class IrAttachment(models.Model):
     def action_renmove_invoice_link(self):
         for attach in self:
             if attach.invoice_ids:
-                attach.invoice_ids.write({'attachment_id' : False, 
-                                          'tipo_comprobante': '',
-                                          'folio_fiscal': '',
-                                          'forma_pago': '',
-                                          'methodo_pago': '',
-                                          'uso_cfdi': '',
-                                          'numero_cetificado': '',
-                                          'fecha_certificacion': '',
-                                          'selo_digital_cdfi': '',
-                                          'selo_sat': '',
-                                          'tipocambio': '',
-                                          'moneda': '',
-                                          'number_folio': '',
-                                          'estado_factura': 'factura_no_generada'})
+                attach.invoice_ids.write({'attachment_id' : False})
             if attach.payment_ids:
-                attach.payment_ids.write({'attachment_id' : False,
-                                          'tipo_comprobante': '',
-                                          'folio_fiscal': '',
-                                          'forma_pago': '',
-                                          'methodo_pago': '',
-                                          'uso_cfdi': '',
-                                          'numero_cetificado': '',
-                                          'fecha_certificacion': '',
-                                          'selo_digital_cdfi': '',
-                                          'selo_sat': '',
-                                          'tipocambio': '',
-                                          'moneda': '',
-                                          'number_folio': '',})
-            vals = {'res_id':False, 'res_model':False}
+                attach.payment_ids.write({'attachment_id' : False})
+            vals = {'res_id':False, 'res_model':False} #'l10n_mx_edi_cfdi_name':False
             if attach.creado_en_odoo:
                 vals.update({'creado_en_odoo':False})
                 #attach.creado_en_odoo=False
             attach.write(vals)
         return True
-    
-    @api.model
-    def update_status_from_ir_attachment_document(self):
-        attchment_list = self.env['ir.attachment'].search([('creado_en_odoo','=',False)])
-        for attchment in attchment_list:
-            if attchment.cfdi_type == 'I'  or  attchment.cfdi_type == 'E':
-                for uu in [attchment.cfdi_uuid,attchment.cfdi_uuid.lower(),attchment.cfdi_uuid.upper()]:
-                   customer_invoices = self.env['account.move'].search([('folio_fiscal','=',uu)],limit=1)
-                   if customer_invoices:
-                       customer_invoices.write({'attachment_id':attchment.id})
-                       attchment.creado_en_odoo=True
-
-            if attchment.cfdi_type == 'SI'  or  attchment.cfdi_type == 'SE':
-                for uu in [attchment.cfdi_uuid,attchment.cfdi_uuid.lower(),attchment.cfdi_uuid.upper()]:
-                   customer_invoices = self.env['account.move'].search([('folio_fiscal','=',uu)],limit=1)
-                   if customer_invoices:
-                       customer_invoices.write({'attachment_id':attchment.id})
-                       attchment.creado_en_odoo=True
-
-            if attchment.cfdi_type == 'P' or attchment.cfdi_type == 'SP': 
-                for uu in [attchment.cfdi_uuid,attchment.cfdi_uuid.lower(),attchment.cfdi_uuid.upper()]:
-                   customer_invoices = self.env['account.payment'].search([('folio_fiscal','=',uu)],limit=1)
-                   if customer_invoices:
-                       customer_invoices.write({'attachment_id':attchment.id})
-                       attchment.creado_en_odoo=True
-

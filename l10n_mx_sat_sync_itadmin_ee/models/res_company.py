@@ -6,8 +6,8 @@ from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT, DEFAULT_SERVER_DATE_FORMA
 
 import base64
 import time
-import subprocess
-import tempfile
+#import subprocess
+#import tempfile
 import logging
 
 from datetime import datetime
@@ -20,26 +20,16 @@ _logger = logging.getLogger(__name__)
 from .special_dict import CaselessDictionary
 
 TRY_COUNT = 3
-KEY_TO_PEM_CMD = 'openssl pkcs8 -in %s -inform der -outform pem -out %s -passin file:%s'
 
-def convert_key_cer_to_pem(key, password):
-    # TODO compute it from a python way
-    with tempfile.NamedTemporaryFile('wb', suffix='.key', prefix='edi.mx.tmp.') as key_file, \
-            tempfile.NamedTemporaryFile('wb', suffix='.txt', prefix='edi.mx.tmp.') as pwd_file, \
-            tempfile.NamedTemporaryFile('rb', suffix='.key', prefix='edi.mx.tmp.') as keypem_file:
-        key_file.write(key)
-        key_file.flush()
-        pwd_file.write(password)
-        pwd_file.flush()
-        subprocess.call((KEY_TO_PEM_CMD % (key_file.name, keypem_file.name, pwd_file.name)).split())
-        key_pem = keypem_file.read()
-    return key_pem
+from .esignature import convert_key_cer_to_pem
+
 
 class ResCompany(models.Model):
     _inherit = 'res.company'
 
     last_cfdi_fetch_date = fields.Datetime("Última sincronización")
     l10n_mx_esignature_ids = fields.Many2many('l10n.mx.esignature.certificate', string='Certificado FIEL')
+    solo_documentos_de_proveedor = fields.Boolean("Solo documentos de proveedor")
     
     @api.model
     def auto_import_cfdi_invoices(self):
@@ -92,7 +82,10 @@ class ResCompany(models.Model):
                 break
         invoice_content_receptor, invoice_content_emisor = {}, {}
         if sat and sat.is_connect:
-            invoice_content_receptor, invoice_content_emisor = sat.search(opt)
+            if self.solo_documentos_de_proveedor:
+                invoice_content_receptor, invoice_content_emisor = sat.search(opt, 'supplier')
+            else:
+                invoice_content_receptor, invoice_content_emisor = sat.search(opt)
             sat.logout()
         elif sat:
             sat.logout()
@@ -186,19 +179,19 @@ class ResCompany(models.Model):
                     vals.update({'date_cfdi' : values.get('date_cfdi').strftime(DEFAULT_SERVER_DATE_FORMAT)})
                 if cfdi_type=='SP':
                     for uu in [uuid,uuid.lower(),uuid.upper()]:
-                        payment_exist = payment_obj.search([('folio_fiscal','=',uu),('payment_type','=','outbound')],limit=1)
+                        payment_exist = payment_obj.search([('l10n_mx_edi_cfdi_uuid_cusom','=',uu),('payment_type','=','outbound')],limit=1)
                         if payment_exist:
                             vals.update({'creado_en_odoo' : True,'payment_ids':[(6,0, payment_exist.ids)]})
                             break
                 if cfdi_type=='SE':
                     for uu in [uuid,uuid.lower(),uuid.upper()]:
-                        invoice_exist = invoice_obj.search([('folio_fiscal','=',uu),('move_type','=','in_refund')],limit=1)
+                        invoice_exist = invoice_obj.search([('l10n_mx_edi_cfdi_uuid_cusom','=',uu),('type','=','in_refund')],limit=1)
                         if invoice_exist:
-                            vals.update({'creado_en_odoo' : True,'invoice_ids':[(6,0, invoice_exist.ids)]})
+                            vals.update({'creado_en_odoo' : True,'payment_ids':[(6,0, invoice_exist.ids)]})
                             break
                 else:
                     for uu in [uuid,uuid.lower(),uuid.upper()]:
-                        invoice_exist = invoice_obj.search([('folio_fiscal','=',uu),('move_type','=','in_invoice')],limit=1)
+                        invoice_exist = invoice_obj.search([('l10n_mx_edi_cfdi_uuid_cusom','=',uu),('type','=','in_invoice')],limit=1)
                         if invoice_exist:
                             vals.update({'creado_en_odoo' : True,'invoice_ids':[(6,0, invoice_exist.ids)]})
                             break
@@ -279,19 +272,19 @@ class ResCompany(models.Model):
                 
                 if cfdi_type=='P':
                     for uu in [uuid,uuid.lower(),uuid.upper()]:
-                        payment_exist = payment_obj.search([('folio_fiscal','=',uu)],limit=1)
+                        payment_exist = payment_obj.search([('l10n_mx_edi_cfdi_uuid_cusom','=',uu),('payment_type','=','inbound')],limit=1)
                         if payment_exist:
                             vals.update({'creado_en_odoo' : True,'payment_ids':[(6,0, payment_exist.ids)]})
                             break
                 if cfdi_type=='E':
                     for uu in [uuid,uuid.lower(),uuid.upper()]:
-                        invoice_exist = invoice_obj.search([('folio_fiscal','=',uu)],limit=1)
+                        invoice_exist = invoice_obj.search([('l10n_mx_edi_cfdi_uuid_cusom','=',uu),('type','=','out_refund')],limit=1)
                         if invoice_exist:
-                            vals.update({'creado_en_odoo' : True,'invoice_ids':[(6,0, invoice_exist.ids)]})
+                            vals.update({'creado_en_odoo' : True,'payment_ids':[(6,0, invoice_exist.ids)]})
                             break
                 else:
                     for uu in [uuid,uuid.lower(),uuid.upper()]:
-                        invoice_exist = invoice_obj.search([('folio_fiscal','=',uu)],limit=1)
+                        invoice_exist = invoice_obj.search([('l10n_mx_edi_cfdi_uuid_cusom','=',uu),('type','=','out_invoice')],limit=1)
                         if invoice_exist:
                             vals.update({'creado_en_odoo' : True,'invoice_ids':[(6,0, invoice_exist.ids)]})
                             break

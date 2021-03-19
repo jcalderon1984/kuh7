@@ -1,4 +1,4 @@
-odoo.define('l10n_mx_sat_sync_itadmin.attachmultiple_attachment', function (require) {
+odoo.define('l10n_mx_sat_sync_itadmin_ee.attachmultiple_attachment', function (require) {
 "use strict";
 
 var basic_fields = require('web.basic_fields');

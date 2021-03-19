@@ -18,28 +18,25 @@ class ResConfigSettings(models.TransientModel):
              'A service is a non-material product you provide.\n'
              'A digital content is a non-material product you sell online. The files attached to the products are the one that are sold on '
              'the e-commerce such as e-books, music, pictures,... The "Digital Product" module has to be installed.')
-    si_producto_no_tiene_codigo = fields.Selection([('Crear automatico', 'Crear automatico'),('Buscar manual', 'Usar producto por defecto')], 'Si producto no se encuentra')
-    buscar_producto_por_clave_sat = fields.Boolean("Buscar producto por clave SAT")
-
+    
+    solo_documentos_de_proveedor = fields.Boolean("Solo documentos de proveedor", related="company_id.solo_documentos_de_proveedor", readonly=False)
+    
+        
     @api.model
     def get_values(self):
         res = super(ResConfigSettings, self).get_values()
         res.update(
-            product_type_default=self.env['ir.config_parameter'].with_user(self.env.user).get_param('l10n_mx_sat_sync_itadmin.product_type_default'),
-            si_producto_no_tiene_codigo=self.env['ir.config_parameter'].with_user(self.env.user).get_param('l10n_mx_sat_sync_itadmin.si_producto_no_tiene_codigo'),
-            buscar_producto_por_clave_sat=self.env['ir.config_parameter'].with_user(self.env.user).get_param('l10n_mx_sat_sync_itadmin.buscar_producto_por_clave_sat')
+            product_type_default=self.env['ir.config_parameter'].with_user(self.env.user).get_param('l10n_mx_sat_sync_itadmin.product_type_default')
         )
         return res
 
-   
+    
     def set_values(self):
         res = super(ResConfigSettings, self).set_values()
         self.env['ir.config_parameter'].with_user(self.env.user).set_param('l10n_mx_sat_sync_itadmin.product_type_default', self.product_type_default)
-        self.env['ir.config_parameter'].with_user(self.env.user).set_param('l10n_mx_sat_sync_itadmin.si_producto_no_tiene_codigo', self.si_producto_no_tiene_codigo)
-        self.env['ir.config_parameter'].with_user(self.env.user).set_param('l10n_mx_sat_sync_itadmin.buscar_producto_por_clave_sat', self.buscar_producto_por_clave_sat)
         return res
     
-   
+    
     def import_sat_invoice(self):
         self.company_id.download_cfdi_invoices()
         return True

@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 from odoo import models,fields, api, _
 from odoo.exceptions import Warning
-import base64
+
+import logging
+_logger = logging.getLogger(__name__)
 
 class XMLInvoiceReconcile(models.TransientModel):
     _name ='xml.invoice.reconcile'
@@ -40,13 +42,9 @@ class XMLInvoiceReconcile(models.TransientModel):
                    ('28', '28 - Tarjeta de débito'), 
                    ('29', '29 - Tarjeta de servicios'), 
                    ('30', '30 - Aplicación de anticipos'), 
+                   ('31', '31 - Intermediario pagos'), 
                    ('99', '99 - Por definir'),],
         string=_('Forma de pago'),
-    )
-    methodo_pago = fields.Selection(
-        selection=[('PUE', _('Pago en una sola exhibición')),
-                   ('PPD', _('Pago en parcialidades o diferido')),],
-        string=_('Método de pago'), 
     )
     uso_cfdi = fields.Selection(
         selection=[('G01', _('Adquisición de mercancías')),
@@ -95,34 +93,18 @@ class XMLInvoiceReconcile(models.TransientModel):
         if not invoice and not payment:
             raise Warning("Seleccionar primero la factura/pago y posteriormente reconciliar con el XML.")
         if invoice:
-            invoice.write({'folio_fiscal': self.folio_fiscal,
-                           'forma_pago' : self.forma_pago,
-                           'methodo_pago' : self.methodo_pago,
-                           'uso_cfdi' : self.uso_cfdi,
-                           'numero_cetificado' : self.numero_cetificado,
-                           'fecha_certificacion' : self.fecha_certificacion,
-                           'fecha_factura' : self.fecha_factura,
-                           'selo_digital_cdfi' : self.selo_digital_cdfi,
-                           'selo_sat' : self.selo_sat,
-                           'tipocambio' : self.tipocambio,
-                           'tipo_comprobante': self.tipo_comprobante,
-                           'factura_cfdi': True,
-                           'moneda': self.moneda,
-                           'number_folio': self.folio_factura,
-                           'estado_factura': 'factura_correcta',
+            invoice.write({'l10n_mx_edi_cfdi_uuid': self.folio_fiscal,
+                           'l10n_mx_edi_usage' : self.uso_cfdi,
+                           'l10n_mx_edi_cfdi_name' : self.attachment_id.store_fname,
+                           #'l10n_mx_edi_cfdi_certificate_id' : self.numero_cetificado,
                            })
             self.attachment_id.write({'creado_en_odoo':True, 'invoice_ids':[(6,0, [invoice.id])], 'res_id': invoice.id, 'res_model': invoice._name,})
-#            _logger.info("Factura conciliada")
+            _logger.info("Factura conciliada")
+            invoice._compute_cfdi_uuid()
             self.write({'reconcilled':True})
-            #xml_file_link = invoice.company_id.factura_dir + '/' + invoice.number.replace('/', '_') + '.xml'
-            #xml_file = open(xml_file_link, 'w')
-            #xml_invoice = base64.b64decode(self.attachment_id.datas)
-            #xml_file.write(xml_invoice.decode("utf-8"))
-            #xml_file.close()
         if payment:
-            payment.write({'folio_fiscal': self.folio_fiscal,
-                           'uso_cfdi' : self.uso_cfdi,
-                           #'l10n_mx_edi_cfdi_name' : self.attachment_id.store_fname,
+            payment.write({'l10n_mx_edi_cfdi_uuid': self.folio_fiscal,
+                           'l10n_mx_edi_cfdi_name' : self.attachment_id.store_fname,
                            })
             self.attachment_id.write({'creado_en_odoo':True, 'payment_ids':[(6,0, [payment.id])], 'res_id': payment.id, 'res_model': payment._name,})
 #            _logger.info("Factura reconciliada")

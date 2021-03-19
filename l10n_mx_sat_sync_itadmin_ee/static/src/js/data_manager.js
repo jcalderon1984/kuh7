@@ -1,4 +1,4 @@
-odoo.define('l10n_mx_sat_sync_itadmin.DataManager', function (require) {
+odoo.define('l10n_mx_sat_sync_itadmin_ee.DataManager', function (require) {
 "use strict";
 
 	var DataManager = require('web.DataManager');

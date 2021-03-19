@@ -152,12 +152,12 @@ class AttachXmlsWizard(models.TransientModel):
 
             monto_total = 0
             if cfdi_type=='P' or cfdi_type=='SP':
-               complemento = tree.find('cfdi:Complemento', NSMAP)
-               pagos = complemento.find('pago10:Pagos', NSMAP)
-               pago = pagos.find('pago10:Pago', NSMAP)
-               monto_total = pago.attrib['Monto']
+                complemento = tree.find('cfdi:Complemento', NSMAP)
+                pagos = complemento.find('pago10:Pagos', NSMAP)
+                pago = pagos.find('pago10:Pago', NSMAP)
+                monto_total = pago.attrib['Monto']
             else:
-               monto_total = tree.get('Total', tree.get('total'))
+                monto_total = tree.get('Total', tree.get('total'))
 
             filename = xml_uuid + '.xml'
             vals = {
