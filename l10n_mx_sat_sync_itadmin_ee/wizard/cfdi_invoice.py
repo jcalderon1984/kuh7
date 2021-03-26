@@ -774,7 +774,7 @@ class CfdiInvoiceAttachment(models.TransientModel):
                 invoice_vals.pop('line_ids')
         invoice_exist = invoice_obj.with_context(ctx).create(invoice_vals)
         
-        invoice_exist.compute_taxes()
+        #invoice_exist.compute_taxes()
         action = self.env.ref('account.action_move_out_refund_type')
         result = action.read()[0]
         res = self.env.ref('account.view_move_form', False)
@@ -1005,7 +1005,7 @@ class CfdiInvoiceAttachment(models.TransientModel):
                     tasa = str(amount_tasa)
                 else:
                     tasa = str(0)
-                tax_exist = tax_obj.search([('type_tax_use','=',tax_type),('l10n_mx_tax_type','=',tax.get('@TipoFactor')),('amount', '=', tasa)],limit=1)
+                tax_exist = tax_obj.search([('type_tax_use','=',tax_type),('l10n_mx_cfdi_tax_type','=',tax.get('@TipoFactor')),('amount', '=', tasa)],limit=1)
                 if not tax_exist:
                     raise Warning("La factura contiene impuestos que no han sido configurados. Por favor configure los impuestos primero")
                 tax_ids.append(tax_exist.id)
