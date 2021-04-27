@@ -5,7 +5,7 @@
     "version": "13.07",
     "category": "Other",
     "description":"Genera un archivo texto para la carga de de incapacidades, faltas e incidencias para el sistema SUA",
-    "depends": ["nomina_cfdi_extras"],
+    "depends": ["nomina_cfdi_extras_ee"],
     "data": [
         'security/ir.model.access.csv',
         "wizard/exportar_cfdi_sua_view.xml",
