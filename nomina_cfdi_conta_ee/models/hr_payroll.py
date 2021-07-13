@@ -138,7 +138,7 @@ class HrPayslipRun(models.Model):
                 payslips += slip
 
             if currency.compare_amounts(credit_sum, debit_sum) == -1:
-                    acc_id = slip_batch.journal_id.default_account_id.id
+                    acc_id = slip_batch.journal_id.default_credit_account_id.id
                     if not acc_id:
                         raise UserError(_('El diario de gasto "%s" no tiene configurado la cuenta de crédito') % (slip_batch.journal_id.name))
                     adjust_credit = (0, 0, {
@@ -152,7 +152,7 @@ class HrPayslipRun(models.Model):
                     })
                     line_ids.append(adjust_credit)
             elif currency.compare_amounts(debit_sum, credit_sum) == -1:
-                    acc_id = slip_batch.journal_id.default_account_id.id
+                    acc_id = slip_batch.journal_id.default_debit_account_id.id
                     if not acc_id:
                         raise UserError(_('El diario de gasto "%s" no tiene configurado la cuenta de débito') % (slip_batch.journal_id.name))
                     adjust_debit = (0, 0, {
@@ -204,6 +204,7 @@ class HrSalaryRule(models.Model):
 
 class ContabilidadNomina(models.Model):
     _name = "nomina.deudora"
+    _description = 'Cuentas deudoras'
 
     doc_id = fields.Many2one('hr.salary.rule', 'Cuentas contables')
     department_id = fields.Many2one('hr.department', string='Departmento')
@@ -212,6 +213,7 @@ class ContabilidadNomina(models.Model):
 
 class ContabilidadNomina(models.Model):
     _name = "nomina.acreedora"
+    _description = 'Cuentas accreedoras'
 
     doc_id = fields.Many2one('hr.salary.rule', 'Cuentas contables')
     department_id = fields.Many2one('hr.department', string='Departmento')
