@@ -7,4 +7,4 @@ from odoo import models, fields, api, _
 class AccountMove(models.Model):
     _inherit = "account.move"
 
-    date = fields.Date(string='Date', required=True, index=True, default=fields.Date.context_today)
+    date = fields.Date(string='Date', required=True, index=True, default=fields.Date.context_today, readonly="0")
