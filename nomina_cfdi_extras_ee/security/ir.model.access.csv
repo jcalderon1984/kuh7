@@ -40,3 +40,4 @@ access_listado_de_monina,access_listado_de_monina,model_listado_de_monina,,1,1,1
 access_total_por_empleado,access_total_por_empleado,model_total_por_empleado,,1,1,1,1
 access_total_por_departamento,access_total_por_departamento,model_total_por_departamento,,1,1,1,1
 access_credito_infonavit,credito_infonavit,nomina_cfdi_extras_ee.model_credito_infonavit,om_hr_payroll.group_hr_payroll_user,1,1,1,1
+

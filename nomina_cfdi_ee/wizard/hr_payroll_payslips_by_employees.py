@@ -2,12 +2,11 @@
 
 from odoo import api, models, fields
 from odoo.exceptions import UserError
-#from odoo.addons.hr_payroll.wizard.hr_payroll_payslips_by_employees import HrPayslipEmployees
 from datetime import datetime
 
 class HrPayslipEmployeesExt(models.TransientModel):
     _inherit = 'hr.payslip.employees'
-    
+
     def compute_sheet(self):
         payslips = self.env['hr.payslip']
         [data] = self.read()
@@ -81,16 +80,3 @@ class HrPayslipEmployeesExt(models.TransientModel):
         payslips.compute_sheet()
         
         return {'type': 'ir.actions.act_window_close'}
-    
-#     @api.multi
-#     def compute_sheet(self):
-#         res = super(HrPayslipEmployees, self).compute_sheet()
-#         active_id = self.env.context.get('active_id')
-#         if active_id and self.employee_ids:
-#             payslips = self.env['hr.payslip'].search([('employee_id', '=', self.employee_ids.ids), ('payslip_run_id', '=', active_id)])
-#             payslip_batch = self.env['hr.payslip.run'].browse(active_id)
-#             payslips.write({'tipo_nomina': payslip_batch.tipo_nomina})
-#         return res
-    
-        
-#HrPayslipEmployees.compute_sheet = HrPayslipEmployeesExt.compute_sheet

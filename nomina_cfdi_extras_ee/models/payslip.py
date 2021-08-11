@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
-from odoo import api, fields, models
+from odoo import api, fields, models, _
 import xlwt
 from xlwt import easyxf
 import io
 from docutils.nodes import line
+from odoo.exceptions import UserError, Warning
+
 class Payslip(models.Model):
     _inherit = 'hr.payslip'
 
@@ -165,7 +167,12 @@ class PayslipBatches(models.Model):
         worksheet.write(0, 1, 'Empleado', header_style)
         worksheet.write(0, 2, 'Dias Pag', header_style)
         col_nm = 3
-        
+
+        noms = self.slip_ids
+        for nom in noms:
+            if not nom.employee_id.department_id:
+                raise UserError(_('%s no tiene departamento configurado') % (nom.employee_id.name))
+
         all_column = self.get_all_columns()
         all_col_dict = all_column[0]
         all_col_list = all_column[1]

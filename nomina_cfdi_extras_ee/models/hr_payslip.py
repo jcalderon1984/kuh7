@@ -450,7 +450,14 @@ class HrPayslip(models.Model):
                 """
                      Change by tushar update_posted not availabel in account.journal
                 """
-          #  payslip.move_id.button_cancel()
-          #  payslip.move_id.unlink()
-       
+            module = self.env['ir.module.module'].sudo().search([('name','=','om_hr_payroll_account')])
+            if module and module.state == 'installed':
+               moves = payslip.mapped('move_id')
+               moves.filtered(lambda x: x.state == 'posted').button_cancel()
+               payslip.write({'move_id': None})
+            #quitar los prestamos
+            if payslip.installment_ids:
+                for installment in payslip.installment_ids:
+                   installment.is_paid = False
+                   installment.payslip_id = None
         return self.write({'state': 'cancel'})

@@ -113,24 +113,23 @@ class FaltasNomina(models.Model):
         self.write({'state':'done'})
         return
 
-   
     def action_cancelar(self):
-        self.write({'state':'cancel'})
-        nombre = 'Faltas_'+self.name
-        registro_falta = self.env['hr.leave'].search([('name','=', nombre)], limit=1)
-        if registro_falta:
-           registro_falta.action_refuse() #write({'state':'cancel'})
+        if self.state == 'draft':
+            self.write({'state':'cancel'})
+        else:
+           self.write({'state':'cancel'})
+           nombre = 'Faltas_'+self.name
+           registro_falta = self.env['hr.leave'].search([('name','=', nombre)], limit=1)
+           if registro_falta:
+              registro_falta.action_refuse()
 
-   
     def action_draft(self):
         self.write({'state':'draft'})
 
-   
     def unlink(self):
         raise UserError("Los registros no se pueden borrar, solo cancelar.")
 
     def action_change_state(self):
         for falta in self:
             if falta.state == 'draft':
-                #print('ESTADO')
                 falta.action_validar()

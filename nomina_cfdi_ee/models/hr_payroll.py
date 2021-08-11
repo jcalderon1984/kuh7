@@ -153,8 +153,6 @@ class HrPayslip(models.Model):
     )
     fecha_pago = fields.Date(string=_('Fecha de pago'))
     dias_pagar = fields.Float('Pagar en la nomina')
-    #no_nomina = fields.Selection(
-    #    selection=[('1', '1'), ('2', '2'), ('3', '3'), ('4', '4'), ('5', '5'), ('6', '6')], string=_('Nómina del mes'))
     ultima_nomina = fields.Boolean(string='Última nómina del mes')
     acum_per_totales = fields.Float('Percepciones totales', readonly=True) #, compute='_get_acumulados_mensual')
     acum_per_grav  = fields.Float('Percepciones gravadas', readonly=True) #, compute='_get_acumulados_mensual')
@@ -260,11 +258,10 @@ class HrPayslip(models.Model):
                 
                     date_start = fields.Date.from_string(date_start)
                     if datetime.datetime.today().year > date_start.year:
+                        if str(date_start.day) == '29' and str(date_start.month) == '2':
+                            date_start -=  datetime.timedelta(days=1)
                         date_start = date_start.replace(d_to.year)
-                        #if str(d_to.day) == '29' and str(d_to.month) == '2':
-                        #    d_to -=  datetime.timedelta(days=1)
-                        #d_to = d_to.replace(date_start.year)
-                        
+
                         if d_from <= date_start <= d_to:
                             diff_date = day_to - datetime.datetime.combine(contract.date_start, datetime.time.max)
                             years = diff_date.days /365.0
@@ -278,7 +275,7 @@ class HrPayslip(models.Model):
                                  'sequence': 2,
                                  'code': 'PVC',
                                  'number_of_days': vacaciones * prima_vac / 100.0, #work_data['days'],
-                                 #'number_of_hours': 1['hours'],
+                                 'number_of_hours': vacaciones * prima_vac / 100.0 * 8,
                                  'contract_id': contract.id,
                             }
                             res.append(attendances)
@@ -289,15 +286,14 @@ class HrPayslip(models.Model):
                 if date_start:
                     d_from = fields.Date.from_string(date_from)
                     d_to = fields.Date.from_string(date_to)
-                    
+
                     date_start = fields.Date.from_string(date_start)
                     if datetime.datetime.today().year > date_start.year and d_from.day > 15:
+                        if str(date_start.day) == '29' and str(date_start.month) == '2':
+                            date_start -=  datetime.timedelta(days=1)
                         date_start = date_start.replace(d_to.year)
                         d_from = d_from.replace(day=1)
-                        #if str(d_to.day) == '29' and str(d_to.month) == '2':
-                        #    d_to -=  datetime.timedelta(days=1)
-                        #d_to = d_to.replace(date_start.year)
-                        
+
                         if d_from <= date_start <= d_to:
                             diff_date = day_to - datetime.datetime.combine(contract.date_start, datetime.time.max)
                             years = diff_date.days /365.0
@@ -311,7 +307,7 @@ class HrPayslip(models.Model):
                                  'sequence': 2,
                                  'code': 'PVC',
                                  'number_of_days': vacaciones * prima_vac / 100.0, #work_data['days'],
-                                 #'number_of_hours': 1['hours'],
+                                 'number_of_hours': vacaciones * prima_vac / 100.0 * 8,
                                  'contract_id': contract.id,
                             }
                             res.append(attendances)
@@ -329,7 +325,7 @@ class HrPayslip(models.Model):
                             'sequence': 2,
                             'code': 'PDM',
                             'number_of_days': domingos, #work_data['days'],
-                            #'number_of_hours': 1['hours'],
+                            'number_of_hours': domingos * 8,
                             'contract_id': contract.id,
                      }
                 res.append(attendances)
@@ -433,6 +429,10 @@ class HrPayslip(models.Model):
             d_to_1 = fields.Date.from_string(date_to)
             if date_start_1 > d_from_1:
                    work_data['days'] =  (date_to - date_start_1).days + 1
+                   nvo_ingreso = True
+            if contract.date_end:
+               if d_to_1 > date_start_1:
+                   work_data['days'] =  (contract.date_end - date_from).days + 1
                    nvo_ingreso = True
 
             #dias_a_pagar = contract.dias_pagar

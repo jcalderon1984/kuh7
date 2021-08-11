@@ -25,11 +25,11 @@
                     </button>
                <!--  </button> -->
          </xpath>
-            <!-- <xpath expr="//page/group[@name='active_group']" position="after">
+            <xpath expr="//group[@name='managers']" position="after">
                 <group string="Prestamo" name="hr_loan">
                     <field name="loan_request"/>
                 </group>
-            </xpath> -->
+            </xpath>
          </field>
     </record>  
 </odoo>
