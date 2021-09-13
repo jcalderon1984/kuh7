@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import time
-from odoo import api, models
+from odoo import api, models, tools
 import base64
 from lxml.objectify import fromstring
 

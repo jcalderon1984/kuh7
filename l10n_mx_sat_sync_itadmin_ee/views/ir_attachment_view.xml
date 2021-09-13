@@ -99,9 +99,8 @@
     		  parent="main_manu_attachment_cfdi_invoices"
     		  name="Documentos digitales" 	
     		  sequence="10"/>
-      
-    <act_window 
-    	name="Genera facturas"
+    
+    <act_window name="Genera facturas"
 	    res_model="cfdi.invoice.attachment"
 	    binding_model="ir.attachment"
 	    view_mode="form"

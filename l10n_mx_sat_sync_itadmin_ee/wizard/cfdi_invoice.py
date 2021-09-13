@@ -602,7 +602,7 @@ class CfdiInvoiceAttachment(models.TransientModel):
         product_type_default = self.env['ir.config_parameter'].sudo().get_param('l10n_mx_sat_sync_itadmin.product_type_default')
 
         #tax_obj = self.env['account.tax']
-        partner_data = data.get('Comprobante',{}).get('Emisor',{})
+        partner_data = data.get('Comprobante',{}).get('Receptor',{})
         invoice_line_data = data.get('Comprobante',{}).get('Conceptos',{}).get('Concepto',[])
         if type(invoice_line_data)!=list:
             invoice_line_data = [invoice_line_data]
@@ -774,7 +774,7 @@ class CfdiInvoiceAttachment(models.TransientModel):
                 invoice_vals.pop('line_ids')
         invoice_exist = invoice_obj.with_context(ctx).create(invoice_vals)
         
-        #invoice_exist.compute_taxes()
+        invoice_exist.compute_taxes()
         action = self.env.ref('account.action_move_out_refund_type')
         result = action.read()[0]
         res = self.env.ref('account.view_move_form', False)
@@ -1005,10 +1005,11 @@ class CfdiInvoiceAttachment(models.TransientModel):
                     tasa = str(amount_tasa)
                 else:
                     tasa = str(0)
-                tax_exist = tax_obj.search([('type_tax_use','=',tax_type),('l10n_mx_cfdi_tax_type','=',tax.get('@TipoFactor')),('amount', '=', tasa)],limit=1)
+                tax_exist = tax_obj.search([('type_tax_use','=',tax_type), ('l10n_mx_cfdi_tax_type','=',tax.get('@TipoFactor')), ('amount', '=', tasa), ('company_id','=',self.env.company.id)],limit=1)
                 if not tax_exist:
                     raise Warning("La factura contiene impuestos que no han sido configurados. Por favor configure los impuestos primero")
                 tax_ids.append(tax_exist.id)
+                k = k+1
         return tax_ids
     
     def import_sale_order(self, file_content):

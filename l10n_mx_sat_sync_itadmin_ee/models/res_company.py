@@ -3,12 +3,15 @@
 from odoo import models, api, fields
 from odoo.exceptions import Warning
 from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT, DEFAULT_SERVER_DATE_FORMAT
-
+from time import sleep
 import base64
 import time
 #import subprocess
 #import tempfile
 import logging
+import requests
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
 
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
@@ -46,6 +49,16 @@ class ResCompany(models.Model):
     def download_cfdi_invoices(self, start_date=False, end_Date=False):
         esignature_ids = self.l10n_mx_esignature_ids
         esignature = esignature_ids.with_user(self.env.user).get_valid_certificate()
+        requests.packages.urllib3.util.ssl_.DEFAULT_CIPHERS = 'ALL:@SECLEVEL=1'
+        
+        session = requests.Session()
+        retry = Retry(connect=3, backoff_factor=0.5)
+        adapter = HTTPAdapter(max_retries=retry)
+        session.mount('http://', adapter)
+        session.mount('https://', adapter)
+        
+        session.get('https://cfdiau.sat.gob.mx/')
+        
         if not esignature:
             raise Warning("Archivos incorrectos no son una FIEL.")
             
@@ -187,7 +200,7 @@ class ResCompany(models.Model):
                     for uu in [uuid,uuid.lower(),uuid.upper()]:
                         invoice_exist = invoice_obj.search([('l10n_mx_edi_cfdi_uuid_cusom','=',uu),('type','=','in_refund')],limit=1)
                         if invoice_exist:
-                            vals.update({'creado_en_odoo' : True,'payment_ids':[(6,0, invoice_exist.ids)]})
+                            vals.update({'creado_en_odoo' : True,'invoice_ids':[(6,0, invoice_exist.ids)]})
                             break
                 else:
                     for uu in [uuid,uuid.lower(),uuid.upper()]:
@@ -280,7 +293,7 @@ class ResCompany(models.Model):
                     for uu in [uuid,uuid.lower(),uuid.upper()]:
                         invoice_exist = invoice_obj.search([('l10n_mx_edi_cfdi_uuid_cusom','=',uu),('type','=','out_refund')],limit=1)
                         if invoice_exist:
-                            vals.update({'creado_en_odoo' : True,'payment_ids':[(6,0, invoice_exist.ids)]})
+                            vals.update({'creado_en_odoo' : True,'invoice_ids':[(6,0, invoice_exist.ids)]})
                             break
                 else:
                     for uu in [uuid,uuid.lower(),uuid.upper()]:
