@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="requirements_ticket_form_view" model="ir.ui.view">
+            <field name="name">requirements.ticket.form</field>
+            <field name="model">requeriments.ticket</field>
+            <field name="arch" type="xml">
+                <form string="Requerimiento">
+                    <sheet>
+                        <group>
+                            <field name="name"/>
+                        </group>
+                        <group>
+                            <field name="description"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="requirements_ticket_tree_view" model="ir.ui.view">
+            <field name="name">requirements_ticket.tree</field>
+            <field name="model">requeriments.ticket</field>
+            <field name="arch" type="xml">
+                <tree string="Requerimiento">
+                    <field name="name"/>
+                    <field name="description"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="requirements_ticket_search_view" model="ir.ui.view">
+            <field name="name">requirements_ticket.search</field>
+            <field name="model">requeriments.ticket</field>
+            <field name="arch" type="xml">
+                <search string="Requerimiento">
+                    <field name="name"/>
+                    <field name="description"/>
+                </search>
+            </field>
+        </record>
+
+        <record id="requirements_ticket_act_window" model="ir.actions.act_window">
+            <field name="name">Requerimiento</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">requeriments.ticket</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    Aquí creas un ejemplo del Requerimiento.
+                </p>
+            </field>
+        </record>
+    </data>
+</odoo>

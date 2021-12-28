@@ -1,0 +1,8 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_requeriments_ticket_user,requeriments.ticket,model_requeriments_ticket,base.group_user,1,1,1,0
+access_steps_ticket_user,steps.ticket,model_steps_ticket,base.group_user,1,1,1,0
+access_requeriments_helpdesk_user,requeriments.helpdesk,model_requirements_helpdesk,base.group_user,1,1,1,0
+access_requeriments_ticket_admin,requeriments.ticket,model_requeriments_ticket,base.group_erp_manager,1,1,1,1
+access_steps_ticket_admin,steps.ticket,model_steps_ticket,base.group_erp_manager,1,1,1,1
+access_requeriments_helpdesk_admin,requeriments.ticket,model_requirements_helpdesk,base.group_erp_manager,1,1,1,1
+access_helpdesk_version,access_helpdesk_version,model_helpdesk_version,base.group_user,1,1,1,1

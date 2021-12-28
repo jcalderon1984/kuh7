@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="requirements_helpdesk_form_view" model="ir.ui.view">
+            <field name="name">helpdesk.requirements.form</field>
+            <field name="model">requirements.helpdesk</field>
+            <field name="arch" type="xml">
+                <form string="Solicitud de requerimiento">
+                    <header>
+                        <button name="pendiente" type="object" string="Pendiente" 
+                            class="oe_highlight"/>
+                        <button name="liberado" type="object" string="Liberado" 
+                            class="oe_highlight"/>
+                        <button name="atrasado" type="object" string="Atrasado" 
+                            class="oe_highlight"/>
+                        <button name="urgente" type="object" string="Urgente" 
+                            class="oe_highlight"/>
+                        <field name="state" widget="statusbar" 
+                            options="{'clickable':'1'}"/>
+                    </header>
+                    <sheet>
+                        <div class="sol_serv">
+                            <div class="oe_button_box" name="button_box">
+                                <button type="object" name="helpdesk_requirements" class="btn oe_stat_button" invisible="1"
+                                        style="width:145px !important;">
+                                    <i class="fa fa-fw o_button_icon fa-print"/>
+                                    <span>Solicitud de Requerimiento</span>
+                                </button>
+
+                            <button type="object" name="print_helpdesk_requirements" class="btn oe_stat_button" style="width:145px !important;">
+                                    <i class="fa fa-fw o_button_icon fa-print"/>
+                                    <span>Solicitud de Requerimiento</span>
+                                </button>
+                            </div>
+                        </div>
+                        <group col="4" colspan="2">
+                            <field name="partner_id" required="True"/>
+                            <field name="name"/>
+                            <field name="version"/>
+                            <field name="project_id"/>
+                            <field name="modulo" required="True"/>
+                            <field name="seccion" required="True"/>
+                            <field name="fecha_solicitud"/>
+                            <field name="desarrollador"/>
+                            <field name="responsable_id"/>
+                            <field name="fecha_reporte"/>
+                            <field name="fecha_responsable"/>
+                            <field name="requeriments_id"/>
+                            <field name="developed_implementer"/>
+                            <field name="reviewed_project_leader"/>
+                            <field name="functional_leader_request"/>
+                            <field name="project_leader_approved"/>
+                        </group>
+                        <group>
+                            <field name="is_soporte" attrs="{'invisible': [('responsable_id', '!=', 8)]}"/><!--"-->
+                            <field name="is_implementador" attrs="{'invisible': [('desarrollador', '!=', None)]}"/><!-- -->
+                            <field name="is_operacion" attrs="{'invisible': [('responsable_id', '!=', 7)]}"/><!---->
+                        </group>
+                        <notebook colspan="4">
+                            <page name="motivo" string="Motivo">
+                                <label for="motivo" string="Motivo"/>
+                                <field name="motivo"/>
+                                <label for="operacion" string="Is Operaciones" 
+                                    groups="requerimiento_tickets.antinio_user"/>
+                                <field name="operacion" 
+                                    groups="requerimiento_tickets.antinio_user"/>
+                                <label for="is_infraestructura" 
+                                    string="Is Infraestructura" 
+                                    groups=" requerimiento_tickets.jaun_user"/>
+                                <field name="is_infraestructura" 
+                                    groups=" requerimiento_tickets.jaun_user"/>
+                            </page>
+                            <page name="pasos" string="Pasos">
+                                <field name="steps_id">
+                                    <tree  editable="bottom">
+                                        <field name="name" />
+                                        <field name="description"/>
+                                    </tree>
+                                </field>
+                            </page>
+<!--                            <page name="okawa" string="Comentario OKAWA">-->
+<!--                                <field name="comment_okawa"/>-->
+<!--                            </page>-->
+                             <page name="kuh7" string="Comentario kuh7">
+                                <field name="comment_kuh7"/>
+                            </page>
+                            <page name="dealba" string="Comentarios Cliente">
+                                <label for="comentarios_dealba" string="Comentarios Cliente"/>
+                                <field name="comentarios_dealba"/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="requirements_helpdesk_tree_view" model="ir.ui.view">
+            <field name="name">requirements.helpdesk.tree</field>
+            <field name="model">requirements.helpdesk</field>
+            <field name="arch" type="xml">
+                <tree string="Solicitud de requerimiento" decoration-info="state == 'r'"
+                      decoration-danger="state == 'a'">
+                    <field name="name"/>
+                    <field name="partner_id"/>
+                    <field name="modulo"/>
+                    <field name="seccion"/>
+                    <field name="fecha_solicitud"/>
+                    <field name="desarrollador"/>
+                    <field name="fecha_reporte"/>
+                    <field name="responsable_id"/>
+                    <field name="fecha_responsable"/>
+                    <field name="requeriments_id"/>
+                    <field name="state" invisible="True"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="requirements_helpdesk_search_view" model="ir.ui.view">
+            <field name="name">requirements.helpdesk.search</field>
+            <field name="model">requirements.helpdesk</field>
+            <field name="arch" type="xml">
+                <search string="Solicitud de requerimiento">
+                    <group expand="1" string="Group By">
+                        <filter string="Cliente" name="partner_id" domain="[]"
+                                context="{'group_by':'partner_id'}"/>
+                        <filter string="Responsable" name="responsable_id" domain="[]"
+                                context="{'group_by':'responsable_id'}"/>
+                        <filter string="Responsable" name="requeriments_id" domain="[]"
+                                context="{'group_by':'requeriments_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="requirements_helpdesk_act_window" model="ir.actions.act_window">
+            <field name="name">Solicitud de requerimiento</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">requirements.helpdesk</field>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="requirements_helpdesk_search_view"/>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    There is no examples click here to add new Solicitud de requerimiento.
+                </p>
+            </field>
+        </record>
+
+        <record id="helpdesk_version_view" model="ir.ui.view">
+            <field name="name">helpdesk.version</field>
+            <field name="model">helpdesk.version</field>
+            <field name="arch" type="xml">
+               <form>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                    </group>
+                </sheet>
+               </form>
+            </field>
+        </record>
+    </data>
+</odoo>

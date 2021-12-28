@@ -1,0 +1,220 @@
+<odoo>
+	<data>
+		<template id="requirements_helpdesk_template_view_pdf">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-call="requerimiento_tickets.sloicitud_report_pdf_external_layout_standard">
+                    	<style>
+                    		td.cen {
+                			background-color:#CE67FE;
+			                font-weight:600;
+			                color:white;
+                			}
+                			td.bord {
+               				 border: 1px solid black;
+                			}
+                			
+                    	</style>
+                        <div class="page">
+                        	<div class="row">
+                        		<div>
+	                        	<table class="table table-bordered" style="width:500px;">
+										<tbody>
+										<tr style="line-height: 3px;">
+										<td class="bord cen">Cliente</td>
+											<td class="bord" style="width: 350px;"><t t-esc="o.partner_id.name"/></td>
+										</tr>
+										<tr style="line-height: 3px;">
+											<td class="bord cen">Modulo</td>
+											<td class="bord"><t t-esc="o.modulo"/></td>
+										</tr>
+										<tr style="line-height:3px;">
+											<td class="bord cen" style="width:150px;">Fecha Solicitud</td>
+											<td class="bord"><t t-esc="o.fecha_solicitud"/></td>
+										</tr>
+										<tr style="line-height: 3px;">
+											<td class="bord cen">Version</td>
+											<td class="bord"><t t-esc="o.version.name"/></td>
+										</tr>
+										</tbody>
+									</table>
+								</div>
+								&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+								<div>
+	                        		<table class="table table-bordered" style="width:310px;">
+										<tbody>
+										<tr style="line-height: 3px;">
+											<td class="bord cen">Folio</td>
+											<td class="bord"><t t-esc="o.name"/></td>
+										</tr>
+										<tr style="line-height: 3px;">
+											<td class="bord cen">Apartado</td>
+											<td class="bord"><t t-esc="o.seccion"/></td>
+										</tr>
+										<t t-set="values" t-value="dict([('r', 'Reportado'), ('p', 'Pendiente'),('l','Liberado'),('a','Atrasado'),('u','Urgente')])"/> 
+										<tr style="line-height: 3px;">
+											<td class="bord cen">Estatus</td>
+											<td class="bord"><t t-esc="values[o.state]"/></td>
+										</tr>
+										</tbody>
+									</table>
+								</div>
+                        	</div>
+                        	<br/>
+                        	<div class="row">
+                        		<div>
+                        			<table class="table table-bordered" style="width:405px;">
+										<tbody>
+										<tr class="text-center" style="line-height: 2px;"><center><strong>Implementación</strong></center></tr>
+										<tr style="line-height: 5px;">
+											<td class="bord cen"><center>Reporta</center></td>
+											<td class="bord">
+												<t t-esc="o.desarrollador.name"/></td>
+										</tr>
+										<tr style="line-height: 5px;">
+											<td class="bord cen"><center>Fecha</center></td>
+											<td class="bord"><t t-esc="o.fecha_reporte"/></td>
+										</tr>
+										</tbody>
+									</table>
+                        		</div>
+                        		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+                        		<div>
+                        			<table class="table table-bordered" style="width:405px;">
+										<tbody>
+										<tr class="text-center" style="line-height: 2px;"><center><strong>Desarrollo</strong></center></tr>
+										<tr style="line-height: 5px;">
+											<td class="bord cen"><center>Responsable</center></td>
+											<td class="bord"><t t-esc="o.responsable_id.name"/></td>
+										</tr>
+										<tr style="line-height: 5px;">
+											<td class="bord cen"><center>Tiempo estimado</center></td>
+											<td class="bord"><t t-esc="o.fecha_responsable"/></td>
+										</tr>
+										</tbody>
+									</table>
+                        		</div>
+                        	</div>
+                        	<br/>
+                        	<div style="margin-left:-14px;margin-right:10px;">
+                        		<table class="table table-bordered">
+                        			<tbody>
+                        				<tr><td class="bord" style="line-height: 7px;"><strong>Requerimiento:<span style="color:#CE67FE;">Inspección Inicial de Cada Producción (Puesta a punto)</span></strong></td></tr>
+                        				<tr style="line-height: 15px;"><td class="bord">
+                        					<t t-esc="o.requeriments_id.description"/>
+                        				</td></tr>
+                        			</tbody>
+                        		</table>
+                        	</div>
+
+                        	
+                        	<div style="margin-left:-14px;margin-right:10px;">
+                        		<table class="table table-bordered">
+                        			<tbody>
+                        				<tr style="line-height: 7px;"><td class="bord cen"><strong>Motivo</strong></td></tr>
+                        				<tr style="line-height: 15px;"><td class="bord"><t t-esc="o.motivo"/></td></tr>
+                        			</tbody>
+                        		</table>
+                        	</div>
+
+                        	<t t-set="pas_count" t-value="0"/>
+                        	<div style="margin-left:-14px;margin-right:10px;">
+                        		<table class="table table-bordered">
+                        			<tbody>
+                        				<tr style="line-height: 7px;"><td class="bord cen"><strong>Pasos a seguir</strong></td></tr>
+                        				<tr style="line-height: 20px;"><td class="bord">
+                        					<t t-set="count" t-value="0"/>
+                        					<t t-foreach="o.steps_id" t-as="step">
+                        						<t t-set="pas_count" t-value="pas_count+1"/>
+                        						<t t-set="count" t-value="count+1"/>
+                        						<t t-esc="count"/>.-
+                        						<t t-esc="step.name"/><br/>
+                        					</t>
+                        				</td></tr>
+                        			</tbody>
+                        		</table>
+                        	</div>
+
+                        	
+                        	<div style="margin-left:-14px;margin-right:10px;">
+                        		<table class="table table-bordered">
+                        			<tbody>
+                        				<tr style="line-height: 7px;"><td class="bord cen"><strong>Comentarios KUH7</strong></td></tr>
+                        				<tr style="line-height: 15px;"><td class="bord"><t t-esc="o.comment_kuh7"/></td></tr>
+                        			</tbody>
+                        		</table>
+                        	</div>
+
+                        	
+                        	<div style="margin-left:-14px;margin-right:10px;">
+                        		<table class="table table-bordered">
+                        			<tbody>
+                        				<tr style="line-height: 7px;"><td class="bord cen"><strong>Comentarios Cliente</strong></td></tr>
+                        				<tr style="line-height: 20px;">
+                        					<td class="bord">
+                        						<t t-esc="o.comentarios_dealba"/>
+                        					</td>
+                        				</tr>
+                        			</tbody>
+                        		</table>
+                        	</div>
+                        	<t t-if="pas_count > 2">
+                        	<div style="page-break-before: always"/>
+                        	</t>
+                        	<div class="row">
+                        		<div>
+	                        		<table class="table table-bordered" style="width:405px;">
+	                        			<tbody>
+	                        				<tr class="text-center" style="line-height: 4px;"><td colspan="2" class="bord cen"><strong>KUH7</strong></td></tr>
+	                        				<tr style="line-height: 60px;">
+	                        					<td class="bord">&#160;&#160;</td>
+	                        					<td class="bord">&#160;&#160;</td>
+	                        				</tr>
+	                        			</tbody>
+	                        		</table>
+	                        	</div>
+	                        	&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+	                        	<div>
+	                        		<table class="table table-bordered" style="width:405px;">
+	                        			<tbody>
+	                        				<tr class="text-center" style="line-height: 4px;"><td colspan="2" class="bord cen"><strong>Dealba</strong></td></tr>
+	                        				<tr style="line-height: 60px;">
+	                        					<td class="bord">&#160;&#160;</td>
+	                        					<td class="bord">&#160;&#160;</td>
+	                        				</tr>
+	                        			</tbody>
+	                        		</table>
+	                        	</div>
+                        	</div>
+                        	
+                			<table width="100%">
+                				<tbody>
+                					<tr>
+                						<td>Elaboró</td>
+                						<td>Revisó </td>
+                						<td class="text-center">Solicitó</td>
+                						<td class="text-center">Aprobó </td>
+                					</tr>
+                					<tr>
+                						<td>Implementador</td>
+                						<td>Líder de Proyecto</td>
+                						<td class="text-center">Líder Funcional</td>
+                						<td class="text-center">Líder de Proyecto</td>
+                					</tr>
+                					<tr>
+                						<td><t t-esc="o.developed_implementer.name"/></td>
+                						<td><t t-esc="o.reviewed_project_leader.name"/></td>
+                						<td class="text-center"><t t-esc="o.functional_leader_request.name"/></td>
+                						<td class="text-center"><t t-esc="o.project_leader_approved.name"/></td>
+                					</tr>
+                				</tbody>
+                			</table>
+                        	</div>
+                      
+                    </t>
+                </t>
+            </t>
+        </template>
+		
+	</data>
+</odoo>

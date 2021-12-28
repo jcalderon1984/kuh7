@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <report
+        id="report_requerimiento_tickets_xlsx"
+        model="requirements.helpdesk"
+        string="Solicitud de requerimiento"
+        report_type="xlsx"
+        name="report_solicitud_requerimeinto"
+        file="report_solicitud_requerimeinto"
+        attachment_use="False"
+        menu="False"
+        />
+    </data>
+</odoo>

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="steps_ticket_form_view" model="ir.ui.view">
+            <field name="name">steps_ticket.form</field>
+            <field name="model">steps.ticket</field>
+            <field name="arch" type="xml">
+                <form string="Pasos a seguir">
+                    <sheet>
+                        <group col="4" colspan="2">
+                            <field name="name"/>
+                            <field name="helpdesk_id"/>
+                        </group>
+                        <group>
+                            <field name="description"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="steps_ticket_tree_view" model="ir.ui.view">
+            <field name="name">steps.ticket.tree</field>
+            <field name="model">steps.ticket</field>
+            <field name="arch" type="xml">
+                <tree string="Pasos a segui">
+                    <field name="name"/>
+                    <field name="description"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="steps_ticket_search_view" model="ir.ui.view">
+            <field name="name">steps.ticket.search</field>
+            <field name="model">steps.ticket</field>
+            <field name="arch" type="xml">
+                <search string="Pasos a segui">
+                    <field name="name"/>
+                    <field name="description"/>
+                </search>
+            </field>
+        </record>
+
+        <record id="steps_ticket_act_window" model="ir.actions.act_window">
+            <field name="name">Pasos a segui</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">steps.ticket</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    Aquí creas un ejemplo de los pasos a seguir del ticket.
+                </p>
+            </field>
+        </record>
+
+
+    </data>
+</odoo>

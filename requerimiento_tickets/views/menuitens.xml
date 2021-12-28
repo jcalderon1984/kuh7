@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+     <menuitem name="Pasos a seguir" id="steps_ticket_menu" parent="helpdesk.helpdesk_menu_config" action="steps_ticket_act_window"/>
+     <menuitem name="Requerimiento" id="requirements_ticket_menu" parent="helpdesk.helpdesk_menu_config" action="requirements_ticket_act_window"/>
+     <menuitem name="Solicitud de requerimiento" id="requirements_helpdesk_menu" parent="helpdesk.menu_helpdesk_root" action="requirements_helpdesk_act_window"/>
+
+</odoo>

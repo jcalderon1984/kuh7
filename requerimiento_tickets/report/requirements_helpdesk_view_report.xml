@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <record id="paperformat_page" model="report.paperformat">
+            <field name="name">format - Requerimiento Tickets</field>
+            <field name="default" eval="True"/>
+            <field name="format">A4</field>
+            <field name="orientation">Portrait</field>
+            <field name="margin_top">35</field>
+            <field name="margin_bottom">28</field>
+            <field name="margin_left">7</field>
+            <field name="margin_right">7</field>
+            <field name="header_line" eval="False"/>
+            <field name="header_spacing">30</field>
+            <field name="dpi">90</field>
+        </record>
+
+        <report
+            id="action_helpdesk_template_pdf"
+            model="requirements.helpdesk"
+            string="test"
+            report_type="qweb-pdf"
+            name="requerimiento_tickets.requirements_helpdesk_template_view_pdf"
+            file="requerimiento_tickets.requirements_helpdesk_template_view_pdf"
+            print_report_name="11"
+            menu="False"
+            paperformat="requerimiento_tickets.paperformat_page"
+           
+        />
+       
+    </data>
+</odoo>
