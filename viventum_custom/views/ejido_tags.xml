@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="ejido_tags_list" model="ir.ui.view">
+                 <field name="name">ejidotags.tree</field>
+                 <field name="model">ejido.tags</field>
+                 <field name="arch" type="xml">
+     <tree editable="bottom">
+       <field name="name"/>
+       <field name="color" widget="color"/>
+    </tree>
+                 </field>
+    </record>
+</odoo>

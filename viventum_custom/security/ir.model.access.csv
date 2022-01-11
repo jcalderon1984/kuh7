@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ejidos,c_ejidos,model_ejidos,base.group_user,1,1,1,1
+access_ejidatarios,c_ejidatarios,model_ejidatarios,base.group_user,1,1,1,1
+access_ejidatarios_tags,c_ejidatarios_tags,model_ejidatarios_tags,base.group_user,1,1,1,1
+access_ejido_tags,c_ejido_tags,model_ejido_tags,base.group_user,1,1,1,1
+access_etapas,c_etapas,model_etapas_ejido,base.group_user,1,1,1,1

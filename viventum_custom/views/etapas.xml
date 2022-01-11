@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <record id="etapas_view_tree" model="ir.ui.view">
+     <field name="name">etapas.tree</field>
+     <field name="model">etapas.ejido</field>
+     <field name="arch" type="xml">
+    <tree string="etapas de proyecto">
+
+
+                 <field name="name" required="1" placeholder="Nombre de la etapa" />
+
+                 </tree>
+
+                 </field>
+    </record>
+
+    <record id="etapas_view_form" model="ir.ui.view">
+     <field name="name">etapas.form</field>
+     <field name="model">etapas.ejido</field>
+     <field name="arch" type="xml">
+     <form string="etapas de proyecto">
+        
+         <sheet>
+       
+             
+                 <field name="name" required="1" placeholder="Nombre de la etapa" />
+             
+        
+         </sheet>
+       
+     </form>
+                 </field>
+    </record>
+
+
+
+    
+   </odoo>

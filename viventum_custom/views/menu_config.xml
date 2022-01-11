@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <record id="open_etapas" model="ir.actions.act_window">
+        <field name="name">Etapas</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">etapas.ejido</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <record id="open_etags" model="ir.actions.act_window">
+        <field name="name">Categorias para Ejidos</field>
+        <field name="res_model">ejido.tags</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <record id="open_ejid_tag" model="ir.actions.act_window">
+        <field name="name">Categorias para Ejidatarios</field>
+        <field name="res_model">ejidatarios.tags</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+        <record id="open_ejidatarios" model="ir.actions.act_window">
+        <field name="name">Ejidatarios</field>
+        <field name="res_model">ejidatarios</field>
+        <field name="view_mode">kanban,tree,form</field>
+    </record>
+
+
+    <record id="open_ejidos" model="ir.actions.act_window">
+        <field name="name">Ejidos</field>
+        <field name="res_model">ejidos</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem id="Control"
+              name="Control Ejidal" groups='res_group_viventum'/>
+
+    <menuitem id="ejidatarios"
+              name="Ejidatarios"
+              parent="Control"
+              action="open_ejidatarios"
+              sequence="1"/>
+
+    <menuitem id="ejidos"
+              name="Ejidos"
+              parent="Control"
+              action="open_ejidos"
+              sequence="2"/>
+
+    <menuitem id="Config"
+              name="Configuracion"
+              parent="Control"
+              sequence="3"/>
+
+    <menuitem id="etapas"
+              name="Etapas"
+              parent="Config"
+              action="open_etapas"/>
+
+    <menuitem id="ejido_tags"
+              name="Categorias para Ejidos"
+              parent="Config"
+              action="open_etags"/>
+
+    <menuitem id="ejidatarios_tags"
+              name="Categorias para Ejidatarios"
+              parent="Config"
+              action="open_ejid_tag"/>
+
+
+</odoo>
