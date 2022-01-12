@@ -63,6 +63,7 @@ class Ejidos(models.Model):
     derechos = fields.Binary("COPIA CERTIFICADA DE DERECHOS")
     actanac = fields.Binary("ACTA DE NACIMIENTO HIJA(O)")
     contrato = fields.Binary("Contrato")
+    certificado = fields.Binary("Certificado de Tierras de uso común")
     state = fields.Selection([
                 ('draft', 'Borrador'),        
                 ('confirm', 'Validado'),

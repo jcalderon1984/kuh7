@@ -52,6 +52,7 @@
                                  <page string="Contrato">
                                      <group>
                                      <field name="contrato" widget="Button" placeholder="Contrato"/>
+                                     <field name="certificado" widget="Button" placeholder="Certificado de Tierras de uso común"/>
                                      </group>
                                  </page>
 
