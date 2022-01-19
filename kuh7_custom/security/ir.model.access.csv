@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_dbase,access_dbase,model_controldb,base.group_user,1,1,1,1
+access_aplicaciones,access_aplicaciones,model_aplicaciones,base.group_user,1,1,1,1

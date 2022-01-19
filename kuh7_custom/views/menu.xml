@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<odoo>
+
+    <record id="Control_DB" model="ir.actions.act_window">
+        <field name="name">Control de BD</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">controldb</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="controldatabase"
+              name="Control de Bases de Datos"
+              action="Control_DB"
+              sequence="1"/>
+</odoo>
