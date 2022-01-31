@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="sale_report_inherit_cotizacion" inherit_id="sale.report_saleorder_document">
+        <xpath expr="//span[@t-field='line.price_unit']" position="replace">
+            <span t-field="line.price_unit" t-options='{"widget": "float", "precision": 2}'/>
+        </xpath>
+    </template>
+</odoo>
