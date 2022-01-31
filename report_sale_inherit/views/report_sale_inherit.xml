@@ -4,5 +4,10 @@
         <xpath expr="//span[@t-field='line.price_unit']" position="replace">
             <span t-field="line.price_unit" t-options='{"widget": "float", "precision": 2}'/>
         </xpath>
+        <xpath expr="//div[@t-field='doc.partner_id']" position="replace">
+            <p>
+                <div t-field="doc.partner_id" t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;address&quot;, &quot;name&quot;], &quot;no_marker&quot;: true}"/>
+            </p>
+        </xpath>
     </template>
 </odoo>
