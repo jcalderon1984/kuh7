@@ -26,14 +26,14 @@ class ActionSatSync(Action):
                 pass
             
             #Payroll manager can see only Tipo de comprobante = Nominas de empleados
-            #if not user.has_group('hr_payroll.group_hr_payroll_manager'):
-             #   try:
-              #      domain = value.get('domain','[]')
-               #     if 'cfdi_type' not in domain:
-                #        domain = safe_eval(domain, ctx)
-                 #       domain.append(('cfdi_type','!=','N'))
-                  #      value['domain']=domain
-                #except Exception:
-                 #   pass
+            if user.has_group('hr_payroll.group_hr_payroll_manager'):
+                try:
+                    domain = value.get('domain','[]')
+                    if 'cfdi_type' not in domain:
+                        domain = safe_eval(domain, ctx)
+                        domain.append(('cfdi_type','!=','N'))
+                        value['domain']=domain
+                except Exception:
+                    pass
                 
-        #return value
+        return value
