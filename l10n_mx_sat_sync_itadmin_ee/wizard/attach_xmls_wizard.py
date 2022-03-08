@@ -179,7 +179,7 @@ class AttachXmlsWizard(models.TransientModel):
             #uuids.append(xml_uuid)
             
         
-        attas = attach_obj.sudo().search([('cfdi_uuid','in',list(attachment_uuids.keys()))])
+        attas = attach_obj.sudo().search([('cfdi_uuid','in',list(attachment_uuids.keys())), ('company_id', '=', company_id)])
         exist_uuids = dict([(att.cfdi_uuid, att.id) for att in attas]) #attas.mapped('cfdi_uuid')
         
         
