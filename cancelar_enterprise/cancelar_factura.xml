@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+
+ <record model="ir.ui.view" id="account_invoice_form_inherit_cfdi_33">
+            <field name="name">account.invoice.cfdi.33</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="account.view_move_form"/>
+            <field name="arch" type="xml">
+                
+              
+                   <xpath expr="//button[@name='preview_invoice']" position="after">
+                       <button name="button_cancel_custom" type="object" string="Cancelar Factura" class="oe_highlight" attrs="{'invisible': [('type', 'not in', ('out_invoice', 'out_refund')), ('state', 'not in', ('posted'))]}"/>
+                   </xpath>
+
+                    
+                
+                
+            </field>
+            </record>
+
+</odoo>
