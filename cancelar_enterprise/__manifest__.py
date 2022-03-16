@@ -11,7 +11,7 @@
 
 
     """,
-    'version' : '1.0',
+    'version' : '1.1',
     'author' : 'Raúl Dominguez',
     'website' : 'http://www.qxunit.com.mx',
     'license' : 'GPL-3',
