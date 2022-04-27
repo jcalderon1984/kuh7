@@ -159,7 +159,13 @@ class ResCompany(models.Model):
                     r_rfc = attrib_dict.get('rfc') #receptor_elements[0].get(attrib_dict.get('rfc'))
                     r_name = attrib_dict.get('nombre') #receptor_elements[0].get(attrib_dict.get('nombre'))
                 r_folio = tree.get("Folio") #receptor_elements[0].get(attrib_dict.get('nombre'))
-
+                cfdi_version = tree.get("Version",'4.0')
+                if cfdi_version=='4.0':
+                    NSMAP.update({'cfdi':'http://www.sat.gob.mx/cfd/4', 'pago20': 'http://www.sat.gob.mx/Pagos20',})
+                else:
+                    NSMAP.update({'cfdi':'http://www.sat.gob.mx/cfd/3', 'pago10': 'http://www.sat.gob.mx/Pagos',})
+                    
+                    
                 cfdi_type = tree.get("TipoDeComprobante",'I')
                 if cfdi_type not in ['I','E','P','N','T']:
                     cfdi_type = 'I'
@@ -168,8 +174,8 @@ class ResCompany(models.Model):
                 monto_total = 0
                 if cfdi_type=='SP':
                     complemento = tree.find('cfdi:Complemento', NSMAP)
-                    pagos = complemento.find('pago10:Pagos', NSMAP)
-                    pago = pagos.find('pago10:Pago', NSMAP)
+                    pagos = complemento.find('pago20:Pagos', NSMAP) if cfdi_version=='4.0' else complemento.find('pago10:Pagos', NSMAP)
+                    pago = pagos.find('pago20:Pago', NSMAP) if cfdi_version=='4.0' else pagos.find('pago10:Pago', NSMAP)
                     monto_total = pago.attrib['Monto']
                 else:
                     monto_total = values.get('total',0.0)
@@ -252,7 +258,14 @@ class ResCompany(models.Model):
                     e_rfc = attrib_dict.get('rfc') #emisor_elements[0].get(attrib_dict.get('rfc'))
                     e_name = attrib_dict.get('nombre') #emisor_elements[0].get(attrib_dict.get('nombre'))
                 r_folio = tree.get("Folio") #receptor_elements[0].get(attrib_dict.get('nombre'))
-
+                
+                cfdi_version = tree.get("Version",'4.0')
+                if cfdi_version=='4.0':
+                    NSMAP.update({'cfdi':'http://www.sat.gob.mx/cfd/4', 'pago20': 'http://www.sat.gob.mx/Pagos20',})
+                else:
+                    NSMAP.update({'cfdi':'http://www.sat.gob.mx/cfd/3', 'pago10': 'http://www.sat.gob.mx/Pagos',})
+                    
+                    
                 cfdi_type = tree.get("TipoDeComprobante",'I')
                 if cfdi_type not in ['I','E','P','N','T']:
                     cfdi_type = 'I'
@@ -260,8 +273,8 @@ class ResCompany(models.Model):
                 monto_total = 0
                 if cfdi_type=='P':
                     complemento = tree.find('cfdi:Complemento', NSMAP)
-                    pagos = complemento.find('pago10:Pagos', NSMAP)
-                    pago = pagos.find('pago10:Pago', NSMAP)
+                    pagos = complemento.find('pago20:Pagos', NSMAP) if cfdi_version=='4.0' else complemento.find('pago10:Pagos', NSMAP)
+                    pago = pagos.find('pago20:Pago', NSMAP) if cfdi_version=='4.0' else pagos.find('pago10:Pago', NSMAP)
                     monto_total = pago.attrib['Monto']
                 else:
                     monto_total = values.get('total',0.0)
