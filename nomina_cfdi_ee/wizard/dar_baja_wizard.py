@@ -30,7 +30,7 @@ class WizardDarBaja(models.TransientModel):
                     'tipo_de_baja': self.tipo_de_baja,
                     'state': 'done',
                 }
-        self.env['incidencias.nomina'].create(vals)
+                self.env['incidencias.nomina'].create(vals)
 
 
     """ THIS WORKS BUT ONLY WITH ONE LINE IN SLIP_IDS

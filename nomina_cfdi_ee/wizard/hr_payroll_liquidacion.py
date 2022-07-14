@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, api, fields,_
-from datetime import datetime
+from datetime import datetime, timedelta
 from datetime import date
 
 import time
@@ -37,17 +37,26 @@ class GeneraLiquidaciones(models.TransientModel):
     sueldo_calculo = fields.Selection([('01','Sueldo diario'),
                                       ('02','Sueldo diario integrado')], string='Sueldo para cálculos')
     sueldo_calculo_monto  = fields.Float('Sueldo calculo monto')
-    tope_prima = fields.Selection([('01','Sueldo diario'),
+    tope_prima = fields.Selection([('01','Salario minimo'),
                                       ('02','UMA')], string='Para calculo topado usar')
     tope_prima_monto  = fields.Float('Tope prima monto')
     estructura  = fields.Many2one('hr.payroll.structure', string='Estructura ordinaria')
     prima_vac = fields.Float('Días aguinaldo prima vacacional')
     journal_id = fields.Many2one("account.journal",'Diario')
     payslip_run_id = fields.Many2one("hr.payslip.run",'Procesamiento')
+    round_antiguedad = fields.Boolean("Redondear antiguedad")
+
+    @api.onchange('employee_id')
+    def _compute_last_day(self):
+        if self.employee_id:
+           payroll = self.env['hr.payslip'].sudo().search([('employee_id', '=', self.employee_id.id)], order='date_to desc',limit=1)
+           if payroll:
+              fecha_inicio = payroll.date_to + timedelta(days=1)
+              self.write({'fecha_inicio': fecha_inicio})
 
     def calculo_create(self):
         employee = self.employee_id
-        module = self.env['ir.module.module'].sudo().search([('name','=','om_hr_payroll_account')])
+        module = self.env['ir.module.module'].sudo().search([('name','=','om_hr_payroll_account_ee')])
         if not employee:
             raise Warning("Seleccione primero al empleado.")
         payslip_batch_nm = 'Liquidacion ' + employee.name
@@ -151,6 +160,7 @@ class GeneraLiquidaciones(models.TransientModel):
                'date_from': date_from,
                'date_to': date_to,
                'contract_id' : contract_id,
+               'dias_pagar': 1,
                'fecha_pago' : date_to,
                'worked_days_line_ids': worked_days2, #[(0, 0, x) for x in payslip_vals2.get('worked_days_line_ids',[])],
             })
@@ -191,10 +201,16 @@ class GeneraLiquidaciones(models.TransientModel):
 
                 if self.sueldo_calculo_monto > tope_prima_antiguedad:
                     _logger.info('mayor')
-                    self.monto_prima_antiguedad = round(self.antiguedad_anos) * 12 * self.tope_prima_monto * 2
+                    if self.round_antiguedad:
+                       self.monto_prima_antiguedad = round(self.antiguedad_anos) * 12 * self.tope_prima_monto * 2
+                    else:
+                       self.monto_prima_antiguedad = round(self.antiguedad_anos,2) * 12 * self.tope_prima_monto * 2
                 else:
                     _logger.info('menor')
-                    self.monto_prima_antiguedad = round(self.antiguedad_anos) * 12 * self.sueldo_calculo_monto
+                    if self.round_antiguedad:
+                       self.monto_prima_antiguedad = round(self.antiguedad_anos) * 12 * self.sueldo_calculo_monto
+                    else:
+                       self.monto_prima_antiguedad = round(self.antiguedad_anos,2) * 12 * self.sueldo_calculo_monto
             else:
                 self.monto_prima_antiguedad = 0
 
@@ -229,7 +245,7 @@ class GeneraLiquidaciones(models.TransientModel):
 #            _logger.info('worked_days %s --- ', worked_days)
             for lines in worked_days:
                _logger.info('lineas %s', lines[2])
-               if lines[2]['code'] == 'FJS' or lines[2]['code'] == 'FR' or lines[2]['code'] == 'FI' or lines[2]['code'] == 'INC_EG':
+               if lines[2]['code'] != 'WORK100' and lines[2]['code'] != 'FJC' and lines[2]['code'] != 'VAC' and lines[2]['code'] != 'SEPT':
                    dias_faltas += lines[2]['number_of_days']
 
             year_date_start = self.contract_id.date_start.year
@@ -308,35 +324,47 @@ class GeneraLiquidaciones(models.TransientModel):
         dias_vacaciones = 0
 
     def get_fondo_ahorro(self):
-        total = 0
-        if self.employee_id and self.contract_id.tablas_cfdi_id:
-            year_date_start = self.contract_id.date_start.year
-            first_day_date = datetime(date.today().year, 1, 1)
-            if year_date_start < date.today().year:
-                date_start = first_day_date
+        for record in self:
+          if record.employee_id:
+            contract = record.employee_id.contract_ids[0]
+            if contract:
+               if contract.tablas_cfdi_id:
+                   abono = 0
+                   retiro = 0
+                   domain=[('state','=', 'done')]
+                   domain.append(('employee_id','=',record.employee_id.id))
+                   if contract.tablas_cfdi_id.caja_ahorro_abono:
+                        rules = record.env['hr.salary.rule'].search([('code', '=', contract.tablas_cfdi_id.caja_ahorro_abono.code)])
+                        payslips = record.env['hr.payslip'].search(domain)
+                        payslip_lines = payslips.mapped('line_ids').filtered(lambda x: x.salary_rule_id.id in rules.ids)
+                        employees = {}
+                        for line in payslip_lines:
+                           if line.slip_id.employee_id not in employees:
+                              employees[line.slip_id.employee_id] = {line.slip_id: []}
+                           if line.slip_id not in employees[line.slip_id.employee_id]:
+                              employees[line.slip_id.employee_id].update({line.slip_id: []})
+                           employees[line.slip_id.employee_id][line.slip_id].append(line)
+                        for employee, payslips in employees.items():
+                            for payslip2,lines in payslips.items():
+                               for line in lines:
+                                  abono += line.total
+                   if contract.tablas_cfdi_id.caja_ahorro_retiro:
+                        rules = record.env['hr.salary.rule'].search([('code', '=', contract.tablas_cfdi_id.caja_ahorro_retiro.code)])
+                        payslips = record.env['hr.payslip'].search(domain)
+                        payslip_lines = payslips.mapped('line_ids').filtered(lambda x: x.salary_rule_id.id in rules.ids)
+                        employees = {}
+                        for line in payslip_lines:
+                           if line.slip_id.employee_id not in employees:
+                              employees[line.slip_id.employee_id] = {line.slip_id: []}
+                           if line.slip_id not in employees[line.slip_id.employee_id]:
+                              employees[line.slip_id.employee_id].update({line.slip_id: []})
+                           employees[line.slip_id.employee_id][line.slip_id].append(line)
+                        for employee, payslips in employees.items():
+                            for payslip2,lines in payslips.items():
+                               for line in lines:
+                                  retiro += line.total
+                   return (abono - retiro)
             else:
-                date_start = self.contract_id.date_start
-            date_end = self.fecha_liquidacion
-
-            domain=[('state','=', 'done')]
-            if date_start:
-                domain.append(('date_from','>=',date_start))
-            if date_end:
-                domain.append(('date_to','<=',date_end))
-            domain.append(('employee_id','=',self.employee_id.id))
-            rules = self.env['hr.salary.rule'].search([('code', '=', 'D067')])
-            payslips = self.env['hr.payslip'].search(domain)
-            payslip_lines = payslips.mapped('line_ids').filtered(lambda x: x.salary_rule_id.id in rules.ids)
-            employees = {}
-            for line in payslip_lines:
-                if line.slip_id.employee_id not in employees:
-                    employees[line.slip_id.employee_id] = {line.slip_id: []}
-                if line.slip_id not in employees[line.slip_id.employee_id]:
-                    employees[line.slip_id.employee_id].update({line.slip_id: []})
-                employees[line.slip_id.employee_id][line.slip_id].append(line)
-
-            for employee, payslips in employees.items():
-                for payslip,lines in payslips.items():
-                    for line in lines:
-                        total += line.total
-        return total
+               return 0
+          else:
+            return 0

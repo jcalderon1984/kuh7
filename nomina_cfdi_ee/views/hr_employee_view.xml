@@ -20,6 +20,7 @@
                                 <field name="regimen"/>
                                 <field name="contrato"/>
                                 <field name="jornada"/>
+                                <field name="sindicalizado"/>
                             </group>
                         </group>
                         <group cols="4">
@@ -27,9 +28,11 @@
                                 <field name="rfc"/>
                                 <field name="curp"/>
                                 <field name="segurosocial"/>
+                                <field name="registro_patronal_id"/>
+                            </group>
+                            <group string="Direcciones">
                                 <field name="correo_electronico"/>
                                 <field name="estado"/>
-                                <field name="registro_patronal"/>
                                 <field name="domicilio_receptor"/>
                             </group>
                         </group>
@@ -39,12 +42,11 @@
                             <field name="fondo_ahorro"/>
                         </group>
                 </page>-->
-                <page name="utilidades" string="Reparto de utilidades" groups="om_hr_payroll.group_hr_payroll_user">
+                <page name="nombre" string="Nombre" groups="om_hr_payroll.group_hr_payroll_user">
                    <group cols="4">
-                      <field name="fecha_utilidad_inicio"/>
-                      <field name="fecha_utilidad_fin"/>
-                      <field name="dias_utilidad"/>
-                      <field name="sueldo_utilidad"/>
+                      <field name="empleado_nombre"/>
+                      <field name="empleado_paterno"/>
+                      <field name="empleado_materno"/>
                    </group>
                 </page>
            </xpath>

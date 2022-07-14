@@ -79,7 +79,7 @@
           <!--TERMINA LOGO DE LA EMPRESA-->
 
           <!--EMPIEZA DATOS DEL EMISOR-->
-                       <div class="col-4" style="font-size:15px;margin:0px;padding:0px;">
+                       <div class="col-4" style="font-size:10px;margin:0px;padding:0px;">
                           <div>
                              <strong>Emisor</strong>
                           </div>
@@ -90,14 +90,14 @@
                              <strong>RFC</strong>:<span t-field="o.company_id.vat" />
                           </div>
                           <div>
-                             <strong>Registro Patronal</strong>: <span t-field="o.employee_id.registro_patronal" />
+                             <strong>Registro Patronal</strong>: <span t-field="o.employee_id.registro_patronal_id.registro_patronal" />
                           </div>
                        </div>
 
             <!--TERMINA DATOS DEL EMISOR-->
 
             <!--INFORMACIÓN GENERAL NOMINA-->
-            <div class="col-4" style="font-size:15px;">
+            <div class="col-4" style="font-size:10px;">
               <div>
                 <strong>Folio:</strong>
                 <strong><span t-if="not o.company_id.serie_nomina=='false'" t-field="o.company_id.serie_nomina" /></strong>
@@ -164,7 +164,7 @@
 
             <div class="row mt32 mb32" style="padding: 2px;">
         <!--PARTE DEL RECEPTOR-->
-          <div class="col-5"  style="font-size:15px;">
+          <div class="col-5"  style="font-size:10px;">
                       <br/>
                        <div >
                           <strong>Receptor</strong>
@@ -191,7 +191,7 @@
           <!--TERMINA PARTE DEL RECEPTOR-->
 
           <!--PARTE DATOS DE NOMINA-->
-          <div class="col-7" style="font-size:15px;">
+          <div class="col-7" style="font-size:10px;">
                        <div >
                           <strong>Datos de la nómina</strong>
                        </div>
@@ -223,7 +223,7 @@
                       </t>
                       
             <div class="row mt32 mb32" style="padding-top: 1px;" >
-                    <div  class="col-6" style="font-size:14px;">
+                    <div  class="col-6" style="font-size:10px;">
                     <table width="100%" border="5" frame="rhs">
             <colgroup>
               <col width='60%' />
@@ -264,7 +264,7 @@
                         </tbody>
                     </table>
                     </div>
-                    <div  class="col-6" style="font-size:14px;">
+                    <div  class="col-6" style="font-size:10px;">
                     <table width="100%" border="5" frame="rhs">
             <colgroup>
               <col width='70%' />
@@ -290,7 +290,7 @@
         </div>
         <!--TABLA OTROS PAGOS -->
         <div class="row mt32 mb32" style="padding-top: 1px;" >
-                    <div  class="col-6" style="font-size:14px;">
+                    <div  class="col-6" style="font-size:10px;">
                     <table width="100%" border="5" frame="rhs">
             <colgroup>
               <col width='60%' />
@@ -318,23 +318,29 @@
                         </tbody>
                     </table>
                     </div>
-             <div  class="col-6" style="font-size:14px;"> </div>
+             <div  class="col-6" style="font-size:10px;"> </div>
         </div>
-        <!--TERMINA TABLA OTROS PAGOS-->
 
-        <table  width="100%"  style="font-size:13px;">
+        <!--TERMINA TABLA OTROS PAGOS-->
+        <t t-if="o.acum_fondo_ahorro > 0">
+            <div style="font-size:10px;">
+                 Fondo de ahorro: <span t-esc="o.acum_fondo_ahorro" t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/>
+            </div>
+        </t>
+
+        <table  width="100%"  style="font-size:10px;">
             <colgroup>
               <col width='60%' />
               <col width='10%' />
               <col width='30%' />
             </colgroup>
           <tr>
-            <td style="font-size:13px;">
+            <td style="font-size:10px;">
           Recibí de esta empresa la cantidad que señala este recibo de pago, estando conforme con las
                     percepciones y las retenciones descritas, por lo que certifico que no se me adeuda cantidad alguna
                     por ningún concepto. <br/> <br/>
               <center>______________________________</center>
-                    <center style="font-size:13px;"><p><strong>Firma del empleado</strong></p></center>
+                    <center style="font-size:10px;"><p><strong>Firma del empleado</strong></p></center>
             </td>
             <td>
             </td>
@@ -345,7 +351,7 @@
               <col width='30%' />
             </colgroup>
                 <tr>
-                  <td style="font-size:13px;">
+                  <td style="font-size:10px;">
                     Total de percepciones:
                   </td>
                   <td class="text-right">
@@ -361,7 +367,7 @@
                   </td>
                 </tr>
                 <tr>
-                  <td style="font-size:13px;">
+                  <td style="font-size:10px;">
                     Total de deducciones:
                   </td>
                   <td class="text-right">
@@ -398,63 +404,64 @@
             <!--TERMINA CODIGO QR-->
 
             <!--CADENA ORIGINAL>  -->
-          <div class="col-9" style="font-size:9px;">
+          <div class="col-9" style="font-size:11px;">
             <div>
-              <strong>Cadena Original del Complemento digital del SAT</strong> <br/>
+              <strong>Cadena Original del Complemento digital del SAT</strong>
                 <span t-field="o.cadena_origenal" style="word-break:break-word;" />
             </div>
             <div >
-              <strong>Sello digital del CFDI</strong><br/>
+              <strong>Sello digital del CFDI</strong>
                 <span t-field="o.selo_digital_cdfi" style="word-break:break-word;" />
             </div>
             <div >
-              <strong>Sello del SAT</strong><br/>
+              <strong>Sello del SAT</strong>
                 <span t-field="o.selo_sat" style="word-break:break-word;" />
             </div>
           </div>
         </div>
 
         <br/>
+        <br/>
 
         <div class="row">
-            <div class="col-3" style="font-size:11px;">
+            <div class="col-3" style="font-size:10px;">
               <strong>Folio fiscal</strong><br/>
                 <span t-field="o.folio_fiscal"/>
             </div>
             
-            <div class="col-3" style="font-size:11px;">
+            <div class="col-3" style="font-size:10px;">
               <strong>No. de Serie del Certificado Emisor</strong>
                 <span t-field="o.numero_cetificado"/>
             </div>
             
-            <div class="col-3" style="font-size:11px;">
+            <div class="col-3" style="font-size:10px;">
               <strong>No. de Serie del Certificado del SAT</strong>
                 <span t-field="o.cetificaso_sat"/>
             </div> 
 
-            <div class="col-3" style="font-size:11px;">
+            <div class="col-3" style="font-size:10px;">
               <strong>Fecha y Hora de Certificación</strong>
                 <span t-field="o.fecha_factura"/>
             </div>
         </div>
 
-        <div class="row">
-            <div class="col-3" style="font-size:11px;">
+         <div class="row">
+            <div class="col-3" style="font-size:10px;">
               <strong>Forma de pago</strong><br/>
                 <span t-field="o.forma_pago"/>
             </div>
             
-            <div class="col-3" style="font-size:11px;">
+            <div class="col-3" style="font-size:10px;">
               <strong>Tipo de comprobante</strong><br/>
                 <span t-field="o.tipo_comprobante"/>
             </div>
             
-            <div class="col-3" style="font-size:11px;">
+            <div class="col-3" style="font-size:10px;">
               <strong>Método de pago</strong><br/>
                 <span t-field="o.methodo_pago"/>
             </div> 
 
-            <div class="col-3" style="font-size:11px;">
+            <div class="col-3" style="font-size:10px;">
               <strong>Uso CFDI(cliente)</strong><br/>
                 <span t-field="o.uso_cfdi"/>
             </div>

@@ -36,8 +36,8 @@ class HrPayslipRun(models.Model):
     ultima_nomina = fields.Boolean(string='Última nómina del mes')
     nominas_mes = fields.Integer('Nóminas a pagar en el mes')
     concepto_periodico = fields.Boolean('Conceptos periódicos', default = True)
-    isr_ajustar = fields.Boolean(string='Ajustar ISR en nómina')
-    isr_devolver = fields.Boolean(string='Devolver ISR')
+    isr_ajustar = fields.Boolean(string='Ajustar ISR (mensual)')
+    #isr_devolver = fields.Boolean(string='Devolver ISR')
     periodicidad_pago = fields.Selection(
         selection=[('01', 'Diario'), 
                    ('02', 'Semanal'), 
@@ -54,21 +54,21 @@ class HrPayslipRun(models.Model):
     )
     fecha_pago = fields.Date(string=_('Fecha de pago'), required=True)
     isr_anual = fields.Boolean(string='ISR anual')
-    no_periodo = fields.Selection(
-        selection=[('1', 'Periodo 1'), 
-                   ('2', 'Periodo 2'), 
-                   ('3', 'Periodo 3'),
-                   ('4', 'Periodo 4'), 
-                   ('5', 'Periodo 5'),
-                   ('6', 'Periodo 6'),
-                   ('7', 'Periodo 7'),
-                   ('8', 'Periodo 8'),
-                   ('9', 'Periodo 9'),
-                   ('10', 'Periodo 10'),
-                   ('11', 'Periodo 11'),
-                   ('12', 'Periodo 12'),
+    mes = fields.Selection(
+        selection=[('01', 'Enero / Periodo 1'), 
+                   ('02', 'Febrero / Periodo 2'), 
+                   ('03', 'Marzo / Periodo 3'),
+                   ('04', 'Abril / Periodo 4'), 
+                   ('05', 'Mayo / Periodo 5'),
+                   ('06', 'Junio / Periodo 6'),
+                   ('07', 'Julio / Periodo 7'),
+                   ('08', 'Agosto / Periodo 8'),
+                   ('09', 'Septiembre / Periodo 9' ),
+                   ('10', 'Octubre / Periodo 10'),
+                   ('11', 'Noviembre / Periodo 11'),
+                   ('12', 'Diciembre / Periodo 12'),
                    ],
-        string=_('No. Periodo'),)
+        string=_('Mes / Periodo'),)
 
     @api.onchange('tipo_configuracion')
     def _set_periodicidad(self):
@@ -77,7 +77,7 @@ class HrPayslipRun(models.Model):
                 values = {
                    'periodicidad_pago': self.tipo_configuracion.periodicidad_pago,
                    'isr_ajustar': self.tipo_configuracion.isr_ajustar,
-                   'isr_devolver': self.tipo_configuracion.isr_devolver,
+                   #'isr_devolver': self.tipo_configuracion.isr_devolver,
                    'imss_mes': self.tipo_configuracion.imss_mes,
                    'imss_dias': self.tipo_configuracion.imss_dias,
                    }
@@ -85,7 +85,7 @@ class HrPayslipRun(models.Model):
                 values = {
                    'periodicidad_pago': self.tipo_configuracion.periodicidad_pago,
                    'isr_ajustar': self.tipo_configuracion.isr_ajustar,
-                   'isr_devolver': self.tipo_configuracion.isr_devolver,
+                   #'isr_devolver': self.tipo_configuracion.isr_devolver,
                }
             self.update(values)
 
@@ -195,39 +195,21 @@ class HrPayslipRun(models.Model):
     def enviar_nomina(self):
         self.ensure_one()
         ctx = self._context.copy()
-        template = self.env.ref('nomina_cfdi_ee.email_template_payroll', False)
-        for payslip in self.slip_ids: 
-            ctx.update({
-                'default_model': 'hr.payslip',
-                'default_res_id': payslip.id,
-                'default_use_template': bool(template),
-                'default_template_id': template.id,
-                'default_composition_mode': 'comment',
-            })
-            
-            vals = self.env['mail.compose.message'].onchange_template_id(template.id, 'comment', 'hr.payslip', payslip.id)
-            mail_message  = self.env['mail.compose.message'].with_context(ctx).create(vals.get('value',{}))
-            mail_message.send_mail()
-        return True
-    
-    def enviar_prenomina(self):
-        self.ensure_one()
-        ctx = self._context.copy()
-        template = self.env.ref('nomina_cfdi_ee.email_template_payroll', False)
-        for payslip in self.slip_ids: 
-            ctx.update({
-                'default_model': 'hr.payslip',
-                'default_res_id': payslip.id,
-                'default_use_template': bool(template),
-                'default_template_id': template.id,
-                'default_composition_mode': 'comment',
-            })
-            
-            vals = self.env['mail.compose.message'].onchange_template_id(template.id, 'comment', 'hr.payslip', payslip.id)
-            mail_message  = self.env['mail.compose.message'].with_context(ctx).create(vals.get('value',{}))
-            mail_message.send_mail()
-        return True
-    
+        view = self.env.ref('nomina_cfdi_ee.enviar_nomina_wizard')
+        ctx.update({'payslips':self.slip_ids.ids})
+  
+        return {
+            'name': 'Enviar nomina',
+            'type': 'ir.actions.act_window',
+            'view_type': 'form',
+            'view_mode': 'form',
+            'res_model': 'enviar.nomina',
+            'views': [(view.id, 'form')],
+            'view_id': view.id,
+            'target': 'new',
+            'context': ctx,
+        }
+
     def timbrar_nomina(self):
         self.ensure_one()
         view = self.env.ref('nomina_cfdi_ee.timbrado_nomina_wizard')
@@ -245,9 +227,19 @@ class HrPayslipRun(models.Model):
             'context': ctx,
         }
 
+    def download_zip(self):
+        return {
+            'type': 'ir.actions.act_url',
+            'url': f'/payroll/download_document?id={self.id}',
+            'target': 'new',
+        }
+
     def timbrar_nomina_wizard(self):
         self.ensure_one()
         #cr = self._cr
+        err_msg = ''
+        correct = 0
+        errors = 0
         payslip_obj = self.env['hr.payslip']
         start_range = self._context.get('start_range')
         end_range = self._context.get('end_range')
@@ -261,7 +253,10 @@ class HrPayslipRun(models.Model):
                     try:
                         if not payslip.nomina_cfdi:
                            payslip.action_cfdi_nomina_generate()
+                           correct += 1
                     except Exception as e:
+                       err_msg += payslip.employee_id.name + ' ' + e.args[0] + '\n'
+                       errors += 1
                        pass
             else:
                 if payslip.state in ['draft','verify']:
@@ -269,9 +264,16 @@ class HrPayslipRun(models.Model):
                 try:
                    if not payslip.nomina_cfdi:
                       payslip.action_cfdi_nomina_generate()
+                      correct += 1
                 except Exception as e:
+                   err_msg += payslip.employee_id.name + ' ' + e.args[0] + '\n'
+                   errors += 1
                    pass
             self.env.cr.commit()
+        if errors > 0:
+           raise UserError(_('Nóminas timbradas correctamente %s \n Nóminas no timbradas %s \n Errores: \n %s') % (correct, errors, err_msg))
+        else:
+           raise UserError(_('Nóminas timbradas correctamente %s \n Nóminas no timbradas %s \n') % (correct, errors))
         return
 
     def confirmar_nomina(self):
@@ -378,7 +380,7 @@ class ConfiguracionNomina(models.Model):
     imss_dias = fields.Float(string='Dias a cotizar en la nómina', store=True)
     imss_mes = fields.Float(string='Dias en el mes', store=True)
     isr_ajustar = fields.Boolean(string='Ajustar ISR en cada nómina', default= True)
-    isr_devolver = fields.Boolean(string='Devolver ISR')
+    #isr_devolver = fields.Boolean(string='Devolver ISR')
     periodicidad_pago = fields.Selection(
         selection=[('01', 'Diario'), 
                    ('02', 'Semanal'), 
