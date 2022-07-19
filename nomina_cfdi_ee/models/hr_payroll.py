@@ -609,18 +609,18 @@ class HrPayslip(models.Model):
                 res.append(attendances)
 
             #Compute prima dominical
-            prima_dominical_obj = self.env['prima.dominical']
-            prima_dominical = prima_dominical_obj.search([('employee_id','=',contract.employee_id.id),('fecha','>=',date_from), ('fecha', '<=', date_to),('state','=','done')])
-            if prima_dominical:
-                   attendances = {
-                            'name': 'Prima dominical',
-                            'sequence': 2,
-                            'code': 'PDM',
-                            'number_of_days': len(prima_dominical),
-                            'number_of_hours': len(prima_dominical) * 8,
-                            'contract_id': contract.id,
-                   }
-                   res.append(attendances)
+#            prima_dominical_obj = self.env['prima.dominical']
+#            prima_dominical = prima_dominical_obj.search([('employee_id','=',contract.employee_id.id),('fecha','>=',date_from), ('fecha', '<=', date_to),('state','=','done')])
+#            if prima_dominical:
+#                   attendances = {
+#                            'name': 'Prima dominical',
+#                            'sequence': 2,
+#                            'code': 'PDM',
+#                            'number_of_days': len(prima_dominical),
+#                            'number_of_hours': len(prima_dominical) * 8,
+#                            'contract_id': contract.id,
+#                   }
+#                   res.append(attendances)
 
             res.extend(leaves.values())
 
