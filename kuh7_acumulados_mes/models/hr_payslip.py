@@ -9,13 +9,15 @@ class HrPayslip(models.Model):
     def _calculate_accumulated_month(self):
         total = 0
         if self.employee_id and self.contract_id.tablas_cfdi_id:
-            if self.periodicidad_pago == '04':
-                mes_actual = self.contract_id.tablas_cfdi_id.tabla_mensual.search(
-                    [('mes', '=', self.mes), ('form_id', '=', self.contract_id.tablas_cfdi_id.id)], limit=1)
-            else:
-                mes_actual = self.contract_id.tablas_cfdi_id.tabla_semanal.search(
-                    [('no_periodo', '=', self.no_periodo), ('form_id', '=', self.contract_id.tablas_cfdi_id.id)],
-                    limit=1)
+            # if self.periodicidad_pago == '04':
+            #     mes_actual = self.contract_id.tablas_cfdi_id.tabla_mensual.search(
+            #         [('mes', '=', self.mes), ('form_id', '=', self.contract_id.tablas_cfdi_id.id)], limit=1)
+            # else:
+            #     mes_actual = self.contract_id.tablas_cfdi_id.tabla_semanal.search(
+            #         [('no_periodo', '=', self.no_periodo), ('form_id', '=', self.contract_id.tablas_cfdi_id.id)],
+            #         limit=1)
+            mes_actual = self.contract_id.tablas_cfdi_id.tabla_mensual.search(
+                [('mes', '=', self.mes), ('form_id', '=', self.contract_id.tablas_cfdi_id.id)], limit=1)
 
             date_start = mes_actual.dia_inicio  # self.date_from
             date_end = mes_actual.dia_fin  # self.date_to
@@ -52,13 +54,15 @@ class HrPayslip(models.Model):
     def _calculate_accumulated_isr_sp_month(self):
         total = 0
         if self.employee_id and self.contract_id.tablas_cfdi_id:
-            if self.periodicidad_pago == '04':
-                mes_actual = self.contract_id.tablas_cfdi_id.tabla_mensual.search(
-                    [('mes', '=', self.mes), ('form_id', '=', self.contract_id.tablas_cfdi_id.id)], limit=1)
-            else:
-                mes_actual = self.contract_id.tablas_cfdi_id.tabla_semanal.search(
-                    [('no_periodo', '=', self.no_periodo), ('form_id', '=', self.contract_id.tablas_cfdi_id.id)],
-                    limit=1)
+            # if self.periodicidad_pago == '04':
+            #     mes_actual = self.contract_id.tablas_cfdi_id.tabla_mensual.search(
+            #         [('mes', '=', self.mes), ('form_id', '=', self.contract_id.tablas_cfdi_id.id)], limit=1)
+            # else:
+            #     mes_actual = self.contract_id.tablas_cfdi_id.tabla_semanal.search(
+            #         [('no_periodo', '=', self.no_periodo), ('form_id', '=', self.contract_id.tablas_cfdi_id.id)],
+            #         limit=1)
+            mes_actual = self.contract_id.tablas_cfdi_id.tabla_mensual.search(
+                [('mes', '=', self.mes), ('form_id', '=', self.contract_id.tablas_cfdi_id.id)], limit=1)
 
             date_start = mes_actual.dia_inicio  # self.date_from
             date_end = mes_actual.dia_fin  # self.date_to
@@ -92,6 +96,6 @@ class HrPayslip(models.Model):
         # return total
         self.accumulated_isr_sp = total
 
-    accumulated_taxable_perceptions = fields.Float(string="Accumulated Taxable Perceptions", compute="_calculate_accumulated_month")
-    accumulated_isr_sp = fields.Float(string="Accumulated ISR (SP)", compute="_calculate_accumulated_isr_sp_month")
+    accumulated_taxable_perceptions = fields.Float(string="Acumulado Base Gravable", compute="_calculate_accumulated_month")
+    accumulated_isr_sp = fields.Float(string="Acumulado ISR (SP)", compute="_calculate_accumulated_isr_sp_month")
 
